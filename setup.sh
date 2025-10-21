@@ -18,7 +18,7 @@ if [ ! -f "$FLAG_FILE" ]; then
 
 
   # Crear el archivo de bandera para no volver a ejecutar esto
-  #touch $FLAG_FILE
+  touch $FLAG_FILE
   echo "\nConfiguración inicial completada."
 
 else
@@ -33,5 +33,5 @@ fi
 echo "\n----------------------------------------------------"
 echo "✅ ¡Proyecto listo!"
 echo "Puedes acceder a la aplicación en:"
-echo "👉 http://localhost:8000"
+echo "http://localhost:8000"
 echo "----------------------------------------------------"

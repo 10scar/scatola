@@ -17,7 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.http import HttpResponse
 from django.urls import path
-
+from usuarios import views
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('hola_mundo', views.hola_mundo, name='hola_mundo'),
+    path('', lambda request: HttpResponse("¡Bienvenido a Conedus!")),
 ]

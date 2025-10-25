@@ -17,7 +17,6 @@ echo "Appling database migrations..."
 python manage.py makemigrations 
 python manage.py migrate
 
-echo "Creando usuario adminsitrador de Django..."
-
+python manage.py tailwind setup
 
 exec "$@"

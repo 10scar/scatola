@@ -26,3 +26,5 @@ node_modules/
 *.idea/
 *.vscode/
 */__pycache__/
+assets/
+.django_tailwind_cli/

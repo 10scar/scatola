@@ -16,10 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.http import HttpResponse
-from django.urls import path
+from django.urls import path, include
 from usuarios import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('hola_mundo', views.hola_mundo, name='hola_mundo'),
-    path('', lambda request: HttpResponse("¡Bienvenido a Conedus!")),
+    path("__reload__/", include("django_browser_reload.urls")),
+    path('usuarios/', include('usuarios.urls', namespace='usuarios')),
+    path('', lambda request: HttpResponse("¡Bienvenido a Conedus! <br><a href='/registro/estudiante/'>Registrarse como estudiante</a> | <a href='/login/'>Iniciar sesión</a>")),
+
+    # Registro
+    path('registro/estudiante/', views.RegistroWizard.as_view(), name='registro_estudiante'),
+    # Autenticación
+    path('login/', views.LoginView.as_view(), name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    # Dashboard
+    path('dashboard/estudiante/', views.dashboard_estudiante, name='dashboard_estudiante'),
+
+
+    
 ]

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "tailwind",
     "theme",
     'storages',
+    'formtools',
 ]
 
 if DEBUG:
@@ -165,6 +166,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 # URLs de autenticación
-LOGIN_URL = 'usuarios:login'
-LOGIN_REDIRECT_URL = 'usuarios:dashboard_estudiante'
-LOGOUT_REDIRECT_URL = 'usuarios:login'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard_estudiante'
+LOGOUT_REDIRECT_URL = 'login'

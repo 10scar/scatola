@@ -9,14 +9,12 @@ then
     echo "MySQL started"
 fi
 
-# Décommenter pour supprimer la bdd à chaque redémarrage (danger)
-# echo "Clear entire database"
-# python manage.py flush --no-input
-
 echo "Appling database migrations..."
 python manage.py makemigrations 
 python manage.py migrate
 
-python manage.py tailwind setup
+echo "Building Tailwind CSS..."
+python manage.py tailwind install
+python manage.py tailwind build
 
 exec "$@"

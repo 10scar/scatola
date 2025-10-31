@@ -30,7 +30,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
-
+TAILWIND_APP_NAME = "theme"
 # Application definition
 
 INSTALLED_APPS = [
@@ -46,8 +46,15 @@ INSTALLED_APPS = [
     'preguntas',
     'rutas',
     'simulacros',
-    "django_tailwind_cli",
+    "tailwind",
+    "theme",
+    'storages',
+    'formtools',
 ]
+
+if DEBUG:
+    # Add django_browser_reload only in DEBUG mode
+    INSTALLED_APPS += ["django_browser_reload"]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,6 +65,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    # Add django_browser_reload middleware only in DEBUG mode
+    MIDDLEWARE += [
+        "django_browser_reload.middleware.BrowserReloadMiddleware",
+    ]
 
 ROOT_URLCONF = 'Conedus.urls'
 
@@ -133,9 +146,26 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "assets"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Cloudflare R2 / S3 Storage
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = os.environ.get('R2_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('R2_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('R2_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.environ.get('R2_ENDPOINT_URL')
+AWS_S3_REGION_NAME = os.environ.get('R2_REGION', 'auto')
+AWS_S3_ADDRESSING_STYLE = 'virtual'  # Cloudflare R2 usa virtual hosting
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
+
+# URLs de autenticación
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard_estudiante'
+LOGOUT_REDIRECT_URL = 'login'

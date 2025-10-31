@@ -17,6 +17,8 @@ echo "Appling database migrations..."
 python manage.py makemigrations 
 python manage.py migrate
 
-python manage.py tailwind setup
+echo "Building Tailwind CSS..."
+python manage.py tailwind install
+python manage.py tailwind build
 
 exec "$@"

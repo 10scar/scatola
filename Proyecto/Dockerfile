@@ -11,9 +11,17 @@ ENV PYTHONUNBUFFERED 1
 # install mysql dependencies
 RUN apt-get update && apt-get install -y gcc default-libmysqlclient-dev pkg-config
 
+# install Node.js and npm
+RUN apt-get install -y curl
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+RUN apt-get install -y nodejs
+
 # install dependencies
 RUN pip install -U pip setuptools wheel
 RUN pip install --upgrade pip
+
+
+# install project dependencies
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt --no-cache-dir
 

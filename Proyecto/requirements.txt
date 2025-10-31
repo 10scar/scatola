@@ -1,4 +1,7 @@
 Django==5.2.7
 mysqlclient
 pillow==11.3.0
-django-tailwind-cli==4.4.2
+django-browser-reload
+django-tailwind
+django-storages==1.14.6
+boto3==1.40.60

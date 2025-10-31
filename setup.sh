@@ -26,7 +26,7 @@ else
   echo "La configuración inicial ya se ha realizado."
   echo "Solo se levantará el servidor."
   echo "----------------------------------------------------"
-  docker-compose up -d
+  docker-compose --env-file .env.dev up -d
 fi
 
 # Mostrar la URL para acceder al proyecto

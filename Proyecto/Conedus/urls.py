@@ -23,10 +23,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("__reload__/", include("django_browser_reload.urls")),
     path('usuarios/', include('usuarios.urls', namespace='usuarios')),
-    path('', lambda request: HttpResponse("¡Bienvenido a Conedus! <br><a href='/registro/estudiante/'>Registrarse como estudiante</a> | <a href='/login/'>Iniciar sesión</a>")),
+    path('', views.landing_view, name='landing'),
 
     # Registro
-    path('registro/estudiante/', views.RegistroWizard.as_view(), name='registro_estudiante'),
+    path('registro/', views.RegistroWizard.as_view(), name='registro'),
     # Autenticación
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),

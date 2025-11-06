@@ -1,0 +1,16 @@
+{% load static %}
+<!-- Navbar -->
+  <header class="navbar bg-base-100 shadow-md sticky top-0 z-50">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="flex-1">
+        <a href="/" class="btn btn-ghost text-2xl font-bold">
+          <img src="{% static 'img/conejo_dashboard.png' %}" alt="Conedus Logo" class="h-8 w-8 mr-2">
+          Conedus
+        </a>
+      </div>
+      <div class="flex-none">
+        <a href="{% url 'login' %}" class="btn btn-ghost">Iniciar Sesión</a>
+        <a href="{% url 'registro' %}" class="btn btn-primary ml-2">Registrarse</a>
+      </div>
+    </div>
+  </header>

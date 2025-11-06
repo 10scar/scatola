@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}Conedus - Prepara tu futuro{% endblock title %}
+
+{% block content %}
+<div class="bg-base-100 text-base-content">
+  {% include "landing/landing_navbar.html" %}
+  <!-- Seccion foto conedus -->
+  <section class="bg-base-100 py-16 overflow-hidden">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="md:w-5/12 mb-10 md:mb-0 text-center md:text-left">
+          <h2 class="text-4xl md:text-5xl font-bold text-primary mb-4 animate-fade-in-down">Empieza a estudiar</h2>
+          <p class="text-lg text-base-content/80 animate-fade-in-up">Prepárate para el ICFES y el Examen de la UNAL como nunca antes</p>
+        </div>
+        <div class="md:w-6/12">
+          <div class="relative animate-float">
+            <img src="{% static 'img/conejo_dashboard.png' %}" alt="Mascota de Conedus" class="mx-auto w-64 md:w-80">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- llamado a la accion -->
+  <section class="hero min-h-[70vh] bg-base-200">
+    <div class="hero-content text-center">
+      <div class="max-w-2xl">
+        <h1 class="text-5xl font-bold">Bienvenido a Conedus</h1>
+        <p class="py-6 text-lg">Domina los temas clave, mantén tu racha de estudio con preguntas diarias y alcanza el puntaje que necesitas para ingresar a la universidad de tus sueños.</p>
+        <a href="{% url 'registro' %}" class="btn btn-primary btn-lg">Empieza a estudiar gratis</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ccaracteristicas -->
+  <section class="py-20 bg-base-100">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold">Una plataforma diseñada para tu éxito</h2>
+        <p class="text-lg mt-2 text-base-content/70">Todo lo que necesitas en un solo lugar.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+  
+        <div class="flex flex-col justify-center">
+          <h3 class="text-3xl font-bold mb-4">Rachas y Preguntas Diarias</h3>
+          <p class="text-base-content/80 mb-4">La constancia es clave. Responde preguntas todos los días, mantén tu racha, gana puntos y compite con otros estudiantes. ¡Convertimos el estudio en un hábito divertido!</p>
+          <ul class="list-disc list-inside space-y-2">
+            <li>Preguntas tipo ICFES y UNAL.</li>
+            <li>Refuerza tu conocimiento diariamente.</li>
+            <li>Sistema de puntos y rachas para motivarte.</li>
+          </ul>
+        </div>
+        <div class="bg-base-300 h-80 rounded-lg flex items-center justify-center">
+          <p class="text-base-content/50">Aquí va una imagen de la racha</p>
+        </div>
+
+    
+        <div class="bg-base-300 h-80 rounded-lg flex items-center justify-center md:order-last">
+          <p class="text-base-content/50">Aquí va una imagen de la ruta de aprendizaje</p>
+        </div>
+        <div class="flex flex-col justify-center">
+          <h3 class="text-3xl font-bold mb-4">Ruta de Aprendizaje Dinámica</h3>
+          <p class="text-base-content/80 mb-4">¿No sabes por dónde empezar? Nuestra plataforma crea una ruta de estudio adaptada a ti. Concéntrate en los temas que más necesitas reforzar y avanza a tu propio ritmo.</p>
+          <ul class="list-disc list-inside space-y-2">
+            <li>Plan de estudio personalizado.</li>
+            <li>Lecciones interactivas y material de apoyo.</li>
+            <li>Seguimiento de tu progreso en tiempo real.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="bg-primary text-primary-content">
+    <div class="container mx-auto px-4 py-20 text-center">
+      <h2 class="text-4xl font-bold">¿Listo para empezar a prepararte?</h2>
+      <p class="text-lg mt-4 max-w-3xl mx-auto">Crea tu cuenta gratuita y da el primer paso hacia el éxito en tus exámenes de admisión. El futuro que quieres está a tu alcance.</p>
+      <a href="{% url 'registro' %}" class="btn btn-secondary btn-lg mt-8">Registrarme ahora</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer footer-center p-10 bg-base-200 text-base-content">
+    <aside>
+      <p class="font-bold">Conedus<br> La preparación es la clave.</p>
+      <p>Copyright © 2025 - Todos los derechos reservados</p>
+    </aside>
+    <nav>
+      <div class="grid grid-flow-col gap-4">
+        <a class="link link-hover">Términos de uso</a>
+        <a class="link link-hover">Política de privacidad</a>
+      </div>
+    </nav>
+  </footer>
+</div>
+{% endblock %}

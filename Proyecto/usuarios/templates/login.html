@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% include "landing/landing_navbar.html" %}
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <!-- Header -->
@@ -10,7 +11,7 @@
             </h2>
             <p class="mt-2 text-center text-sm text-gray-600">
                 ¿No tienes cuenta?
-                <a href="{% url 'registro_estudiante' %}" class="font-medium text-blue-600 hover:text-blue-500">
+                <a href="{% url 'registro' %}" class="font-medium text-blue-600 hover:text-blue-500">
                     Regístrate aquí
                 </a>
             </p>

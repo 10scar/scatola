@@ -118,3 +118,8 @@ def dashboard_estudiante(request):
         'usuario': request.user,
     }
     return render(request, 'home_estudiante.html', context)
+
+def landing_view(request):
+    return render(request, 'landing/landing.html')
+    
+    

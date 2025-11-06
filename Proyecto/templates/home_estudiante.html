@@ -1,0 +1,89 @@
+{%extends "dashboard/dashboard_estudiante.html"%}
+{% load static %}
+
+{% block page_content %}
+<div class="min-h-screen flex items-center justify-center p-8 bg-background">
+  <div class="max-w-6xl w-full">
+    <!-- Tarjeta principal con dos columnas -->
+    <div class="rounded-xl shadow-2xl p-8 bg-card">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        
+        <!-- Columna izquierda: Imagen del conejo -->
+        <div class="flex justify-center items-center">
+          <div class="avatar">
+            <div class="w-80  ring-offset-4 ring-offset-card">
+              <img src="{% static 'img/conejo_dashboard.png' %}" alt="Conejo mascota" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna derecha: Contenido -->
+        <div class="flex flex-col space-y-6">
+          <!-- Saludo al usuario -->
+          <div>
+            <h1 class="text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              ¡Hola, {{ user.first_name|default:user.username }}! 
+            </h1>
+            <p class="text-lg text-muted-foreground">
+              Bienvenido de nuevo a tu plataforma de aprendizaje
+            </p>
+          </div>
+
+          <!-- Mensaje motivacional -->
+          <div class="rounded-lg shadow-lg p-4 flex gap-3 items-center bg-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="shrink-0 w-6 h-6 stroke-primary">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <h3 class="font-bold text-foreground">¡Sigue aprendiendo!</h3>
+              <div class="text-xs text-muted-foreground">Cada día es una nueva oportunidad para crecer</div>
+            </div>
+          </div>
+
+          <!-- Botones de acción rápida -->
+          <div class="flex flex-col gap-3">
+            <button class="btn btn-lg gap-2 w-full rounded-lg transition-all hover:shadow-lg bg-primary text-white border-none hover:opacity-90">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="w-6 h-6">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <path d="M12 17h.01"></path>
+              </svg>
+              Preguntas del día
+            </button>
+            <button class="btn btn-lg gap-2 w-full rounded-lg transition-all hover:shadow-lg bg-muted text-black border-none hover:opacity-90">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="w-6 h-6">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+                <path d="M9 10h6"></path>
+                <path d="M9 14h6"></path>
+              </svg>
+              Lecciones del día
+            </button>
+          </div>
+
+          <!-- Estadísticas rápidas -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="text-center p-4 rounded-lg shadow bg-card border-2 border-border">
+              <div class="text-xs font-medium mb-1 text-muted-foreground">Racha</div>
+              <div class="text-3xl font-bold mb-1 text-primary">0</div>
+              <div class="text-xs text-muted-foreground">días</div>
+            </div>
+            
+            <div class="text-center p-4 rounded-lg shadow bg-card border-2 border-border">
+              <div class="text-xs font-medium mb-1 text-muted-foreground">Preguntas</div>
+              <div class="text-3xl font-bold mb-1 text-secondary">0</div>
+              <div class="text-xs text-muted-foreground">hechas</div>
+            </div>
+            
+            <div class="text-center p-4 rounded-lg shadow bg-card border-2 border-border">
+              <div class="text-xs font-medium mb-1 text-muted-foreground">Lecciones</div>
+              <div class="text-3xl font-bold mb-1 text-foreground">0</div>
+              <div class="text-xs text-muted-foreground">activas</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}

@@ -117,4 +117,4 @@ def dashboard_estudiante(request):
     context = {
         'usuario': request.user,
     }
-    return render(request, 'dashboard/dashboard_estudiante.html', context)
+    return render(request, 'home_estudiante.html', context)

@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+
+
+
+
 /**
   * A catch-all path to Django template files, JavaScript, and Python files
   * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
@@ -9,3 +13,25 @@
   * the scope of this path.
   */
 @source "../../../**/*.{html,py,js}";
+
+/* Variables CSS para la paleta de colores */
+@theme {
+  /* Colores Base */
+  --color-background:         #F0F9FF;
+  --color-foreground:         #1E293B;
+  --color-card:               #FFFFFF;
+
+  /* Colores de Marca */
+  --color-primary:            #3B82F6;
+  --color-secondary:          #10B981;
+
+  /* Colores de Estado */
+  --color-muted:              #E0F2FE;
+  --color-muted-foreground:   #64748B;
+  --color-accent:             #D1FAE5;
+  --color-destructive:        #EF4444;
+
+  /* Colores Complementarios */
+  --color-border:             #BAE6FD;
+  --color-input-background:   #FFFFFF;
+}

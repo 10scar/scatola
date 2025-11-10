@@ -3,33 +3,20 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 from django.urls import reverse_lazy
 from formtools.wizard.views import SessionWizardView
-from .models import Usuario, Rol, Perfil
-from .forms import (
-    LoginForm, 
-    Paso1PersonalForm, Paso2AcademicoForm, Paso3SeguridadForm
-)
+from .models import Usuario, Perfil
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import Group
+from .forms import (LoginForm, Paso1PersonalForm, Paso2AcademicoForm, Paso3SeguridadForm)
 
 
-def hola_mundo(request):
-    """Vista de prueba inicial"""
-    usuario, created = Usuario.objects.get_or_create(
-        email='hola@mundo.com',
-        defaults={
-            'last_name': 'Guti',
-            'first_name': "Oscar",
-        }
-    )
-    # Pasar datos al template
-    context = {
-        'usuario': usuario,
-        'mensaje': '¡Aplicación funcionando correctamente!' if created else
-        '¡Usuario ya existía en la BD!',
-        'es_nuevo': created
-    }
-    return render(request, 'hola_mundo.html', context)
+def get_redirect_url_by_role(user):
+    if user.groups.filter(name='Administrador').exists():
+        return 'dashboard_admin'
+    
+    return 'dashboard_estudiante'
 
 
 class RegistroWizard(SessionWizardView):
@@ -55,12 +42,9 @@ class RegistroWizard(SessionWizardView):
             first_name=data['first_name'], last_name=data['last_name'],
             password=data['password1']
         )
-        
-        # Asignar rol
-        rol, _ = Rol.objects.get_or_create(nombre='Estudiante')
-        user.rol = rol
-        user.save()
-        
+        estudiante_group = Group.objects.get(name='Estudiante')
+        user.groups.add(estudiante_group)
+ 
         # Crear perfil
         Perfil.objects.update_or_create(
             usuario=user,
@@ -75,31 +59,24 @@ class RegistroWizard(SessionWizardView):
 
 
 class LoginView(FormView):
-    """
-    Vista basada en clase para el inicio de sesión de usuarios.
-    Maneja la autenticación y redirección según el rol del usuario.
-    """
     template_name = 'login.html'
     form_class = LoginForm
-    success_url = reverse_lazy('dashboard_estudiante')
-    
+
     def form_valid(self, form):
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
         user = authenticate(self.request, username=username, password=password)
         
-        if user is not None:
-            login(self.request, user)
-            messages.success(self.request, f'¡Bienvenido de nuevo, {user.first_name}!')
-            
-            # Redirigir según el rol del usuario
-            if user.rol and user.rol.nombre == 'Estudiante':
-                return redirect('dashboard_estudiante')
-            else:
-                return redirect('dashboard_estudiante')
-        else:
+        if user is None:
             messages.error(self.request, 'Usuario o contraseña incorrectos.')
             return self.form_invalid(form)
+        
+        login(self.request, user)
+        messages.success(self.request, f'¡Bienvenido de nuevo, {user.first_name}!')
+            
+        redirect_url = get_redirect_url_by_role(user)
+        return redirect(redirect_url)
+        
     
     def form_invalid(self, form):
         return super().form_invalid(form)
@@ -113,7 +90,6 @@ def logout_view(request):
 
 @login_required
 def dashboard_estudiante(request):
-    """Dashboard principal para estudiantes autenticados"""
     context = {
         'usuario': request.user,
     }
@@ -121,5 +97,21 @@ def dashboard_estudiante(request):
 
 def landing_view(request):
     return render(request, 'landing/landing.html')
-    
-    
+
+class DashboardAdminView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = 'admin/dashboard_admin.html'
+    login_url = reverse_lazy('login')
+
+    def test_func(self):
+        return self.request.user.groups.filter(name='Administrador').exists()
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'No tienes permiso para acceder a esta página.')
+        return redirect('dashboard_estudiante')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['usuario'] = self.request.user
+        return context
+
+

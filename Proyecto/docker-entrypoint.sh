@@ -17,4 +17,10 @@ echo "Building Tailwind CSS..."
 python manage.py tailwind install
 python manage.py tailwind build
 
+echo "Poblando la base de datos con el temario..."
+python manage.py shell -c "from preguntas.carga import temario; temario.poblar_datos()"
+
+echo "Creando dos usuarios por defecto ..."
+python manage.py shell -c "from usuarios.carga import users_default; users_default.poblar_datos()"
+
 exec "$@"

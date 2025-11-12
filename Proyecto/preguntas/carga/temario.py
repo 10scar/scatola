@@ -57,7 +57,6 @@ def poblar_datos():
     tema_num, _ = Tema.objects.get_or_create(
         nombre="Pensamiento Numérico y Aritmética",
         defaults={
-            'componente': comp_math_icfes, # Asigna un "dueño" principal
             'prioridad': 1,
             'descripcion': "Habilidad para comprender y manipular números, sus relaciones y sus operaciones en diferentes contextos."
         }
@@ -81,7 +80,6 @@ def poblar_datos():
     tema_alg, _ = Tema.objects.get_or_create(
         nombre="Pensamiento Variacional (Álgebra y Funciones)",
         defaults={
-            'componente': comp_math_icfes,
             'prioridad': 2,
             'descripcion': "Reconocimiento de patrones, variables y la comprensión del concepto de función para modelar situaciones de cambio."
         }
@@ -114,7 +112,6 @@ def poblar_datos():
     tema_geo, _ = Tema.objects.get_or_create(
         nombre="Pensamiento Espacial y Métrico (Geometría)",
         defaults={
-            'componente': comp_math_icfes,
             'prioridad': 3,
             'descripcion': "Comprensión de las propiedades de figuras bidimensionales y tridimensionales, y la habilidad de medir y realizar transformaciones en el espacio."
         }
@@ -142,7 +139,6 @@ def poblar_datos():
     tema_est, _ = Tema.objects.get_or_create(
         nombre="Pensamiento Aleatorio (Estadística y Probabilidad)",
         defaults={
-            'componente': comp_math_icfes,
             'prioridad': 4,
             'descripcion': "Habilidad para interpretar, analizar, representar y hacer inferencias a partir de conjuntos de datos."
         }
@@ -173,7 +169,6 @@ def poblar_datos():
     tema_lect_lit, _ = Tema.objects.get_or_create(
         nombre="Comprensión Literal e Identificación de Información",
         defaults={
-            'componente': comp_lect_crit_icfes,
             'prioridad': 1,
             'descripcion': "Habilidad para identificar y comprender la información explícita y las partes que conforman un texto."
         }
@@ -196,7 +191,6 @@ def poblar_datos():
     tema_lect_inf, _ = Tema.objects.get_or_create(
         nombre="Análisis Inferencial y Sentido Global",
         defaults={
-            'componente': comp_lect_crit_icfes,
             'prioridad': 2,
             'descripcion': "Habilidad para comprender cómo se enlazan las partes de un texto para darle un sentido global e inferir información no explícita."
         }
@@ -224,7 +218,6 @@ def poblar_datos():
     tema_lect_crit, _ = Tema.objects.get_or_create(
         nombre="Reflexión Crítica e Intertextualidad",
         defaults={
-            'componente': comp_lect_crit_icfes,
             'prioridad': 3,
             'descripcion': "Capacidad de evaluar la validez de los argumentos, la estructura del texto y la postura del autor frente al contenido."
         }
@@ -247,7 +240,6 @@ def poblar_datos():
     tema_filo_icfes, _ = Tema.objects.get_or_create(
         nombre="Fundamentos Filosóficos",
         defaults={
-            'componente': comp_lect_crit_icfes,
             'prioridad': 4,
             'descripcion': "Comprensión de conceptos y textos provenientes de la tradición filosófica."
         }
@@ -267,7 +259,6 @@ def poblar_datos():
     tema_bio, _ = Tema.objects.get_or_create(
         nombre="Biología",
         defaults={
-            'componente': comp_nat_icfes,
             'prioridad': 1,
             'descripcion': "Estudio de los seres vivos, su origen, evolución, funciones vitales y su interacción con el entorno."
         }
@@ -300,7 +291,6 @@ def poblar_datos():
     tema_qui, _ = Tema.objects.get_or_create(
         nombre="Química",
         defaults={
-            'componente': comp_nat_icfes,
             'prioridad': 2,
             'descripcion': "Estudio de la composición, estructura, propiedades y transformaciones de la materia."
         }
@@ -333,7 +323,6 @@ def poblar_datos():
     tema_fis, _ = Tema.objects.get_or_create(
         nombre="Física",
         defaults={
-            'componente': comp_nat_icfes,
             'prioridad': 3,
             'descripcion': "Estudio de la energía, la materia, el movimiento y las fuerzas fundamentales que gobiernan el universo."
         }
@@ -361,7 +350,6 @@ def poblar_datos():
     tema_cts, _ = Tema.objects.get_or_create(
         nombre="Ciencia, Tecnología y Sociedad (CTS)",
         defaults={
-            'componente': comp_nat_icfes,
             'prioridad': 4,
             'descripcion': "Análisis del impacto de la ciencia y la tecnología en la sociedad, el medio ambiente y la ética."
         }
@@ -381,7 +369,6 @@ def poblar_datos():
     tema_hist_geo, _ = Tema.objects.get_or_create(
         nombre="Historia y Geografía",
         defaults={
-            'componente': comp_soc_icfes,
             'prioridad': 1,
             'descripcion': "Comprensión de eventos históricos clave y la relación del ser humano con el espacio geográfico."
         }
@@ -409,7 +396,6 @@ def poblar_datos():
     tema_ciu, _ = Tema.objects.get_or_create(
         nombre="Competencias Ciudadanas y Constitución",
         defaults={
-            'componente': comp_soc_icfes,
             'prioridad': 2,
             'descripcion': "Conocimiento de la estructura del Estado colombiano y los derechos y deberes ciudadanos."
         }
@@ -431,7 +417,6 @@ def poblar_datos():
     tema_filo_logica_unal, _ = Tema.objects.get_or_create(
         nombre="Filosofía y Lógica",
         defaults={
-            'componente': comp_soc_unal,
             'prioridad': 3,
             'descripcion': "Aplicación de la lógica formal y el pensamiento filosófico para analizar problemas."
         }
@@ -457,7 +442,7 @@ def poblar_datos():
 
     tema_ing_1, _ = Tema.objects.get_or_create(
         nombre="Comprensión de Avisos (Nivel A1 - Parte 1)",
-        defaults={'componente': comp_ingles_icfes, 'prioridad': 1}
+        defaults={'prioridad': 1}
     )
     Temario.objects.get_or_create(tema=tema_ing_1, componente=comp_ingles_icfes)
     Contenido.objects.get_or_create(
@@ -468,7 +453,7 @@ def poblar_datos():
 
     tema_ing_2, _ = Tema.objects.get_or_create(
         nombre="Relación de Léxico (Nivel A1 - Parte 2)",
-        defaults={'componente': comp_ingles_icfes, 'prioridad': 2}
+        defaults={'prioridad': 2}
     )
     Temario.objects.get_or_create(tema=tema_ing_2, componente=comp_ingles_icfes)
     Contenido.objects.get_or_create(
@@ -479,7 +464,7 @@ def poblar_datos():
 
     tema_ing_3, _ = Tema.objects.get_or_create(
         nombre="Conversaciones (Nivel A1 - Parte 3)",
-        defaults={'componente': comp_ingles_icfes, 'prioridad': 3}
+        defaults={'prioridad': 3}
     )
     Temario.objects.get_or_create(tema=tema_ing_3, componente=comp_ingles_icfes)
     Contenido.objects.get_or_create(
@@ -490,7 +475,7 @@ def poblar_datos():
 
     tema_ing_4, _ = Tema.objects.get_or_create(
         nombre="Textos con Espacios (Nivel A1-B1 - Partes 4 y 7)",
-        defaults={'componente': comp_ingles_icfes, 'prioridad': 4}
+        defaults={'prioridad': 4}
     )
     Temario.objects.get_or_create(tema=tema_ing_4, componente=comp_ingles_icfes)
     Contenido.objects.get_or_create(
@@ -501,7 +486,7 @@ def poblar_datos():
 
     tema_ing_5, _ = Tema.objects.get_or_create(
         nombre="Comprensión Lectora Literal (Nivel A2-B1 - Parte 5)",
-        defaults={'componente': comp_ingles_icfes, 'prioridad': 5}
+        defaults={'prioridad': 5}
     )
     Temario.objects.get_or_create(tema=tema_ing_5, componente=comp_ingles_icfes)
     Contenido.objects.get_or_create(
@@ -512,7 +497,7 @@ def poblar_datos():
 
     tema_ing_6, _ = Tema.objects.get_or_create(
         nombre="Comprensión Lectora Inferencial (Nivel B1 - Parte 6)",
-        defaults={'componente': comp_ingles_icfes, 'prioridad': 6}
+        defaults={'prioridad': 6}
     )
     Temario.objects.get_or_create(tema=tema_ing_6, componente=comp_ingles_icfes)
     Contenido.objects.get_or_create(
@@ -526,7 +511,6 @@ def poblar_datos():
     tema_img_esp, _ = Tema.objects.get_or_create(
         nombre="Razonamiento Espacial (Sólidos y Vistas)",
         defaults={
-            'componente': comp_an_img_unal,
             'prioridad': 1,
             'descripcion': "Habilidad para interpretar, visualizar y manipular mentalmente objetos en tres dimensiones."
         }
@@ -547,7 +531,6 @@ def poblar_datos():
     tema_img_abs, _ = Tema.objects.get_or_create(
         nombre="Razonamiento Abstracto (Patrones y Simetría)",
         defaults={
-            'componente': comp_an_img_unal,
             'prioridad': 2,
             'descripcion': "Habilidad para identificar patrones, secuencias y transformaciones lógicas en figuras abstractas."
         }

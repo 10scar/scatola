@@ -13,6 +13,28 @@
                 </a>
             </li>
 
+            <!-- Gestionar Temas -->
+            <li>
+                <a href="{% url 'dashboard_admin:tema_list' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Gestión de Temas">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="inline-block size-4 my-1.5">
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span class="is-drawer-close:hidden">Temas</span>
+                </a>
+            </li>
+
+            <!-- Gestionar Temarios -->
+            <li>
+                <a href="{% url 'dashboard_admin:temario_index' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Gestión de Temarios">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="inline-block size-4 my-1.5">
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        <path d="M10 12h4"></path>
+                        <path d="M10 16h4"></path>
+                    </svg>
+                    <span class="is-drawer-close:hidden">Temarios</span>
+                </a>
+            </li>
+
             <!-- Gestionar preguntas -->
             <li>
                 <a href="{% url 'dashboard_admin' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Gestionar preguntas">

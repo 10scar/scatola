@@ -3,13 +3,15 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from formtools.wizard.views import SessionWizardView
 from .models import Usuario, Perfil
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group
 from .forms import (LoginForm, Paso1PersonalForm, Paso2AcademicoForm, Paso3SeguridadForm)
+
+from django.shortcuts import get_object_or_404
 
 
 def get_redirect_url_by_role(user):
@@ -113,5 +115,25 @@ class DashboardAdminView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['usuario'] = self.request.user
         return context
+
+
+# ============================================
+# MIXIN PARA VERIFICAR PERMISOS DE ADMINISTRADOR
+# ============================================
+
+class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """Mixin para verificar que el usuario sea administrador"""
+    login_url = reverse_lazy('login')
+    
+    def test_func(self):
+        return self.request.user.groups.filter(name='Administrador').exists()
+    
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            messages.error(self.request, 'Debes iniciar sesión para acceder a esta página.')
+            return redirect(self.login_url)
+        messages.error(self.request, 'No tienes permisos de administrador.')
+        return redirect('dashboard_estudiante')
+
 
 

@@ -1,0 +1,85 @@
+{% extends 'admin/dashboard_admin.html' %}
+
+{% block page_content %}
+<div class="p-6 max-w-2xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+        <ol class="flex items-center space-x-2 text-gray-600">
+            <li><a href="{% url 'dashboard_admin' %}" class="hover:text-blue-600">Dashboard</a></li>
+            <li><span class="text-gray-400">/</span></li>
+            <li><a href="{% url 'dashboard_admin:temario_index' %}" class="hover:text-blue-600">Temarios</a></li>
+            <li><span class="text-gray-400">/</span></li>
+            <li><a href="{% url 'dashboard_admin:componente_list' tipo_examen.id %}" class="hover:text-blue-600">{{ tipo_examen.nombre }}</a></li>
+            <li><span class="text-gray-400">/</span></li>
+            <li><a href="{% url 'dashboard_admin:temario_detail' componente.id %}" class="hover:text-blue-600">{{ componente.nombre }}</a></li>
+            <li><span class="text-gray-400">/</span></li>
+            <li class="text-gray-900 font-medium">Eliminar Asociación</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Confirmar Eliminación</h1>
+    </div>
+
+    <!-- Alerta de advertencia -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 mb-6 rounded-lg">
+        <div class="flex items-start">
+            <svg class="w-6 h-6 text-yellow-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <div class="text-yellow-800">
+                <h3 class="font-semibold text-lg">¿Está seguro de eliminar esta asociación?</h3>
+                <p class="mt-2">Esto eliminará el tema "<strong>{{ object.tema.nombre }}</strong>" del componente "<strong>{{ componente.nombre }}</strong>".</p>
+                <p class="mt-2 text-sm">
+                    <strong>Nota:</strong> Esta acción NO elimina el tema, solo la asociación con este componente. El tema seguirá existiendo y podrás volver a agregarlo cuando quieras.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalles de la asociación -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Detalles de la Asociación</h2>
+        <dl class="space-y-3">
+            <div class="flex border-b border-gray-200 pb-2">
+                <dt class="font-medium text-gray-600 w-1/3">Tema:</dt>
+                <dd class="text-gray-900 w-2/3">{{ object.tema.nombre }}</dd>
+            </div>
+            <div class="flex border-b border-gray-200 pb-2">
+                <dt class="font-medium text-gray-600 w-1/3">Componente:</dt>
+                <dd class="text-gray-900 w-2/3">{{ componente.nombre }}</dd>
+            </div>
+            <div class="flex border-b border-gray-200 pb-2">
+                <dt class="font-medium text-gray-600 w-1/3">Tipo de Examen:</dt>
+                <dd class="text-gray-900 w-2/3">{{ tipo_examen.nombre }}</dd>
+            </div>
+            {% if object.tema.descripcion %}
+            <div class="flex border-b border-gray-200 pb-2">
+                <dt class="font-medium text-gray-600 w-1/3">Descripción:</dt>
+                <dd class="text-gray-900 w-2/3">{{ object.tema.descripcion|truncatewords:30 }}</dd>
+            </div>
+            {% endif %}
+            <div class="flex border-b border-gray-200 pb-2">
+                <dt class="font-medium text-gray-600 w-1/3">Contenidos:</dt>
+                <dd class="text-gray-900 w-2/3">{{ object.tema.contenidos.count }} contenido{{ object.tema.contenidos.count|pluralize }}</dd>
+            </div>
+        </dl>
+    </div>
+
+    <!-- Formulario de confirmación -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="flex gap-4">
+            <button type="submit" 
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition duration-200">
+                Sí, Eliminar Asociación
+            </button>
+            <a href="{% url 'dashboard_admin:temario_detail' componente.id %}" 
+               class="flex-1 text-center bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold px-6 py-3 rounded-lg transition duration-200">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

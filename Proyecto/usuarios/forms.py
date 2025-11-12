@@ -1,6 +1,7 @@
 from django import forms
 from .models import Usuario, Perfil, NivelFormacion
 
+
 # Estilos comunes de Tailwind
 INPUT_CLASSES = 'mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500'
 
@@ -84,3 +85,5 @@ class Paso3SeguridadForm(forms.Form):
         if password and password_copy and password != password_copy:
             raise forms.ValidationError('Las contraseñas no coinciden.')
         return cleaned_data
+
+

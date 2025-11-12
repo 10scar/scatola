@@ -14,14 +14,28 @@ class Componente(models.Model):
 
 class Tema(models.Model):
     nombre = models.CharField(max_length=100)
-    componente = models.ForeignKey(Componente, on_delete=models.CASCADE)
     descripcion = models.TextField(null=True, blank=True)
     prioridad = models.IntegerField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'Tema'
+        verbose_name_plural = 'Temas'
+        ordering = ['prioridad', 'nombre']
+    
     def __str__(self):
         return self.nombre
+
 class Temario(models.Model):
-    tema = models.ForeignKey(Tema, on_delete=models.CASCADE)
-    componente = models.ForeignKey(Componente, on_delete=models.CASCADE)
+    tema = models.ForeignKey(Tema, related_name='temarios', on_delete=models.CASCADE)
+    componente = models.ForeignKey(Componente, related_name='temarios', on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ('tema', 'componente')
+        verbose_name = 'Temario'
+        verbose_name_plural = 'Temarios'
+    
+    def __str__(self):
+        return f"{self.tema.nombre} - {self.componente.nombre}"
 
 class Contenido(models.Model):
     tema = models.ForeignKey(Tema, related_name='contenidos', on_delete=models.CASCADE)

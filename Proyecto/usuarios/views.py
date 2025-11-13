@@ -12,6 +12,9 @@ from django.contrib.auth.models import Group
 from .forms import (LoginForm, Paso1PersonalForm, Paso2AcademicoForm, Paso3SeguridadForm)
 
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.utils import timezone
+from datetime import date, timedelta
 
 
 def get_redirect_url_by_role(user):
@@ -134,6 +137,53 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return redirect(self.login_url)
         messages.error(self.request, 'No tienes permisos de administrador.')
         return redirect('dashboard_estudiante')
+
+
+
+@login_required
+def recuerdo_racha(request):
+    """Endpoint JSON que indica si el usuario debe recibir un recordatorio para mantener su racha.
+
+    Respuesta: { 'reminder': true|false, 'detail': 'texto opcional' }
+    """
+    try:
+        perfil = request.user.perfil
+    except Exception:
+        # Si el usuario no tiene perfil, no hacemos nada
+        return JsonResponse({'reminder': False, 'detail': 'Sin perfil'}, status=200)
+
+    necesita = False
+    try:
+        # Lógica localizada aquí: recordatorio si no existe `ultima_respuesta_diaria`
+        # o si su fecha es anterior al día actual.
+        if not perfil.ultima_respuesta_diaria:
+            necesita = True
+        else:
+            from django.apps import apps
+            RespuestaDiaria = apps.get_model('rutas', 'RespuestaDiaria')
+            fecha_dt = (
+                RespuestaDiaria.objects
+                .filter(pk=perfil.ultima_respuesta_diaria)
+                .values_list('fecha', flat=True)
+                .first()
+            )
+            if not fecha_dt:
+                necesita = True
+            else:
+                try:
+                    ultima_fecha = fecha_dt.date()
+                except Exception:
+                    ultima_fecha = fecha_dt
+
+                from datetime import date
+                hoy = date.today()
+                necesita = (ultima_fecha != hoy)
+    except Exception:
+        # En caso de error defensivo, pedir recordatorio para mayor seguridad
+        necesita = True
+
+    detail = 'Se requiere recordatorio' if necesita else 'Racha al día'
+    return JsonResponse({'reminder': necesita, 'detail': detail}, status=200)
 
 
 

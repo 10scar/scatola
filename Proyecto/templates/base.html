@@ -11,5 +11,51 @@
 </head>
 <body class="h-full">
         {% block content %}{% endblock %}
+        {% if user.is_authenticated %}
+        <script>
+            (function(){
+                const endpoint = "{% url 'usuarios:reminder_racha' %}";
+
+                // Pedir permiso para mostrar notificaciones si es necesario
+                function ensurePermission(){
+                    if (!('Notification' in window)) return Promise.resolve(false);
+                    if (Notification.permission === 'granted') return Promise.resolve(true);
+                    if (Notification.permission === 'denied') return Promise.resolve(false);
+                    return Notification.requestPermission().then(p => p === 'granted');
+                }
+
+                async function checkAndNotify(){
+                    try{
+                        const resp = await fetch(endpoint, {credentials: 'same-origin'});
+                        if (!resp.ok) return;
+                        const data = await resp.json();
+                        if (data.reminder){
+                            const ok = await ensurePermission();
+                            if (!ok) return;
+                            const title = '¡Conedus te espera!';
+                            const body = '¡¡¡Contesta la pregunta diaria de hoy y aumenta tu racha!!!';
+                            const n = new Notification(title, {
+                                body: body,
+                                icon: '/static/img/conejo_dashboard.png'
+                            });
+                            n.onclick = function(){ window.focus(); window.location.href = '/dashboard/estudiante/'; };
+                        }
+                    }catch(e){
+                        console.error('Error comprobando recordatorio de racha', e);
+                    }
+                }
+
+                // Ejecutar al cargar y luego cada hora
+                (async function(){
+                    // Pedimos permiso al cargar para mejorar la UX
+                    try{ await ensurePermission(); }catch(e){}
+                    // Primer chequeo inmediato
+                    checkAndNotify();
+                    // Cada hora (3600000 ms)
+                    setInterval(checkAndNotify, 60 * 60 * 1000);
+                })();
+            })();
+        </script>
+        {% endif %}
 </body>
 </html>

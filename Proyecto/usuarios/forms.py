@@ -4,6 +4,68 @@ from .models import Usuario, Perfil, NivelFormacion
 # Estilos comunes de Tailwind
 INPUT_CLASSES = 'mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500'
 
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ["first_name", "email"]
+
+        widgets = {
+            "first_name": forms.TextInput(attrs={
+                "class": "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm "
+                            "focus:outline-none focus:ring-blue-500 focus:border-blue-500 "
+                            "text-gray-900 placeholder-gray-400",
+                "placeholder": "Tu nombre"
+            }),
+            "email": forms.EmailInput(attrs={
+                "class": "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm "
+                            "focus:outline-none focus:ring-blue-500 focus:border-blue-500 "
+                            "text-gray-900 placeholder-gray-400",
+                "placeholder": "correo@ejemplo.com"
+            }),
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+
+        # Evita choque con otros usuarios (menos el mismo usuario actual)
+        if Usuario.objects.filter(email=email).exclude(id=self.instance.id).exists():
+            raise forms.ValidationError("Este correo ya está registrado.")
+
+        return email
+
+class PerfilUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Perfil
+        fields = ["edad", "institucion", "nivel_formacion"]
+
+        widgets = {
+            "edad": forms.NumberInput(attrs={
+                "class": "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm "
+                        "focus:outline-none focus:ring-blue-500 focus:border-blue-500 "
+                        "text-gray-900 placeholder-gray-400",
+                "placeholder": "18"
+            }),
+            "institucion": forms.TextInput(attrs={
+                "class": "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm "
+                        "focus:outline-none focus:ring-blue-500 focus:border-blue-500 "
+                        "text-gray-900 placeholder-gray-400",
+                "placeholder": "Colegio / Universidad"
+            }),
+            "nivel_formacion": forms.Select(attrs={
+                "class": "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm "
+                        "focus:outline-none focus:ring-blue-500 focus:border-blue-500 "
+                        "text-gray-900 placeholder-gray-400"
+            }),
+        }
+
+    def clean_edad(self):
+        edad = self.cleaned_data.get("edad")
+
+        if edad is not None:
+            if edad < 5 or edad > 100:
+                raise forms.ValidationError("La edad debe estar entre 5 y 100 años.")
+        
+        return edad
 
 class LoginForm(forms.Form):
     """

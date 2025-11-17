@@ -33,6 +33,5 @@ urlpatterns = [
     # Dashboard
     path('dashboard/estudiante/', views.dashboard_estudiante, name='dashboard_estudiante'),
 
-
     
 ]

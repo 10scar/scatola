@@ -31,7 +31,7 @@ class Usuario(AbstractUser):
 # El perfil se relaciona 1 a 1 con el usuario.
 class Perfil(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
-    nivel_formacion = models.ForeignKey(NivelFormacion, on_delete=models.SET_NULL, null=True)
+    nivel_formacion = models.ForeignKey(NivelFormacion, on_delete=models.SET_NULL, blank = True, null=True)
     institucion = models.CharField(max_length=45, null=True, blank=True)
     edad = models.IntegerField(null=True, blank=True)
 

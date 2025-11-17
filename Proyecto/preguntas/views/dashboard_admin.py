@@ -1,6 +1,5 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, FormView
 from django.urls import reverse_lazy
@@ -61,30 +60,10 @@ class TemaListView(AdminRequiredMixin, ListView):
         context['search'] = self.request.GET.get('search', '')
         return context
 
-# ...existing code... (el resto de tus vistas)
 
 
-class TemaListView(AdminRequiredMixin, ListView):
-    """Vista para listar todos los temas"""
-    model = Tema
-    template_name = 'admin/temas/tema_list.html'
-    context_object_name = 'temas'
-    paginate_by = 10
-    
-    def get_queryset(self):
-        queryset = Tema.objects.prefetch_related('temarios').order_by('prioridad', 'nombre')
-        
-        # Filtro por búsqueda
-        search = self.request.GET.get('search')
-        if search:
-            queryset = queryset.filter(nombre__icontains=search)
-        
-        return queryset
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['search'] = self.request.GET.get('search', '')
-        return context
+
+
 
 
 class TemaCreateView(AdminRequiredMixin, CreateView):

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Perfil, NivelFormacion
+from .models import Usuario, NivelFormacion
 
 
 # Estilos comunes de Tailwind

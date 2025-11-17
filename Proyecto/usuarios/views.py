@@ -2,16 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.views.generic import FormView, TemplateView, ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import FormView, TemplateView
 from django.urls import reverse_lazy
 from formtools.wizard.views import SessionWizardView
 from .models import Usuario, Perfil
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group
 from .forms import (LoginForm, Paso1PersonalForm, Paso2AcademicoForm, Paso3SeguridadForm)
-
-from django.shortcuts import get_object_or_404
 
 
 def get_redirect_url_by_role(user):

@@ -308,10 +308,10 @@ class TemarioAddTemasView(AdminRequiredMixin, FormView):
         else:
             messages.warning(self.request, 'No se seleccionó ningún tema.')
         
-        return redirect('usuarios:temario_detail', comp_id=self.componente.pk)
+        return redirect('dashboard_admin:temario_detail', comp_id=self.componente.pk)
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:temario_detail', kwargs={'comp_id': self.componente.pk})
+        return reverse_lazy('dashboard_admin:temario_detail', kwargs={'comp_id': self.componente.pk})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

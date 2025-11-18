@@ -1,5 +1,3 @@
-from django.urls import path
-from . import views
 
 app_name = 'usuarios'
 
@@ -11,4 +9,3 @@ urlpatterns = [
     path('perfil-actualizar/', views.editar_perfil, name='editar_perfil')
     
 ]
-

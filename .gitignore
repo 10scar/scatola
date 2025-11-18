@@ -28,3 +28,4 @@ node_modules/
 */__pycache__/
 assets/
 .django_tailwind_cli/
+Proyecto/preguntas_img/

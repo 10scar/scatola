@@ -1,5 +1,6 @@
 from django import forms
-from .models import Usuario, Perfil, NivelFormacion
+from .models import Usuario, NivelFormacion
+
 
 # Estilos comunes de Tailwind
 INPUT_CLASSES = 'mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500'
@@ -68,9 +69,6 @@ class PerfilUpdateForm(forms.ModelForm):
         return edad
 
 class LoginForm(forms.Form):
-    """
-    Formulario de inicio de sesión con estilos de Tailwind CSS.
-    """
     username = forms.CharField(
         label='Nombre de usuario o correo',
         max_length=150,
@@ -144,8 +142,10 @@ class Paso3SeguridadForm(forms.Form):
     
     def clean(self):
         cleaned_data = super().clean()
-        pwd1 = cleaned_data.get('password1')
-        pwd2 = cleaned_data.get('password2')
-        if pwd1 and pwd2 and pwd1 != pwd2:
+        password = cleaned_data.get('password1')
+        password_copy = cleaned_data.get('password2')
+        if password and password_copy and password != password_copy:
             raise forms.ValidationError('Las contraseñas no coinciden.')
         return cleaned_data
+
+

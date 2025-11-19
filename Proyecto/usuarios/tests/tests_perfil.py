@@ -100,7 +100,7 @@ class EditarPerfilViewTests(TestCase):
 
         perfil = Perfil.objects.get(usuario=self.user)
         self.assertEqual(perfil.edad, 22)
-        self.assertEqual(perfil.institucion, "UniTest")
+        self.assertEqual(perfil.institucion, "Testeo")
 
     def test_actualizacion_invalida(self):
         """

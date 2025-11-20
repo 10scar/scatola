@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <!-- Breadcrumb -->
+    <div class="text-sm breadcrumbs mb-6">
+        <ul>
+            <li><a href="{% url 'dashboard_admin:grupo_list' %}">Grupos</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+
+    <!-- Formulario -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-2xl mb-6">{{ title }}</h2>
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Título -->
+                <div class="form-control w-full">
+                    <label class="label" for="{{ form.titulo.id_for_label }}">
+                        <span class="label-text font-semibold">{{ form.titulo.label }}</span>
+                        <span class="label-text-alt text-error">*</span>
+                    </label>
+                    {{ form.titulo }}
+                    {% if form.titulo.errors %}
+                    <label class="label">
+                        <span class="label-text-alt text-error">{{ form.titulo.errors.0 }}</span>
+                    </label>
+                    {% endif %}
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Nombre identificativo del grupo de preguntas</span>
+                    </label>
+                </div>
+
+                <!-- Descripción -->
+                <div class="form-control w-full">
+                    <label class="label" for="{{ form.descripcion.id_for_label }}">
+                        <span class="label-text font-semibold">{{ form.descripcion.label }}</span>
+                    </label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}
+                    <label class="label">
+                        <span class="label-text-alt text-error">{{ form.descripcion.errors.0 }}</span>
+                    </label>
+                    {% endif %}
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Texto base, contexto o descripción del grupo (opcional)</span>
+                    </label>
+                </div>
+
+                <!-- Errores generales del formulario -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ form.non_field_errors.0 }}</span>
+                </div>
+                {% endif %}
+
+                <!-- Botones -->
+                <div class="card-actions justify-end gap-2 pt-4">
+                    <a href="{% url 'dashboard_admin:grupo_list' %}" class="btn btn-ghost">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        {{ button_text }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

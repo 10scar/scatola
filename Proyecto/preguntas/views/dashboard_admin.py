@@ -71,7 +71,7 @@ class TemaCreateView(AdminRequiredMixin, CreateView):
     model = Tema
     form_class = TemaForm
     template_name = 'admin/temas/tema_form.html'
-    success_url = reverse_lazy('usuarios:tema_list')
+    success_url = reverse_lazy('dashboard_admin:tema_list')
     
     def form_valid(self, form):
         messages.success(self.request, f'Tema "{form.instance.nombre}" creado exitosamente.')
@@ -89,7 +89,7 @@ class TemaUpdateView(AdminRequiredMixin, UpdateView):
     model = Tema
     form_class = TemaForm
     template_name = 'admin/temas/tema_form.html'
-    success_url = reverse_lazy('usuarios:tema_list')
+    success_url = reverse_lazy('dashboard_admin:tema_list')
     
     def form_valid(self, form):
         messages.success(self.request, f'Tema "{form.instance.nombre}" actualizado exitosamente.')
@@ -106,7 +106,7 @@ class TemaDeleteView(AdminRequiredMixin, DeleteView):
     """Vista para eliminar un tema"""
     model = Tema
     template_name = 'admin/temas/tema_confirm_delete.html'
-    success_url = reverse_lazy('usuarios:tema_list')
+    success_url = reverse_lazy('dashboard_admin:tema_list')
     
     def delete(self, request, *args, **kwargs):
         tema = self.get_object()
@@ -156,7 +156,7 @@ class ContenidoCreateView(AdminRequiredMixin, CreateView):
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:contenido_list', kwargs={'tema_id': self.tema.pk})
+        return reverse_lazy('dashboard_admin:contenido_list', kwargs={'tema_id': self.tema.pk})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -187,7 +187,7 @@ class ContenidoUpdateView(AdminRequiredMixin, UpdateView):
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:contenido_list', kwargs={'tema_id': self.tema.pk})
+        return reverse_lazy('dashboard_admin:contenido_list', kwargs={'tema_id': self.tema.pk})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -208,7 +208,7 @@ class ContenidoDeleteView(AdminRequiredMixin, DeleteView):
         return super().dispatch(request, *args, **kwargs)
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:contenido_list', kwargs={'tema_id': self.tema.pk})
+        return reverse_lazy('dashboard_admin:contenido_list', kwargs={'tema_id': self.tema.pk})
     
     def delete(self, request, *args, **kwargs):
         contenido = self.get_object()
@@ -338,7 +338,7 @@ class TemarioRemoveTemaView(AdminRequiredMixin, DeleteView):
         )
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:temario_detail', kwargs={'comp_id': self.componente.pk})
+        return reverse_lazy('dashboard_admin:temario_detail', kwargs={'comp_id': self.componente.pk})
     
     def delete(self, request, *args, **kwargs):
         temario = self.get_object()

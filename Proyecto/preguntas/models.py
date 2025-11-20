@@ -50,11 +50,25 @@ class Contenido(models.Model):
 class Grupo(models.Model):
     titulo = models.CharField(max_length=45)
     descripcion = models.TextField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'Grupo'
+        verbose_name_plural = 'Grupos'
+        ordering = ['titulo']
+    
     def __str__(self):
         return self.titulo
 
 class TipoPregunta(models.Model):
     nombre = models.CharField(max_length=45)
+    
+    class Meta:
+        verbose_name = 'Tipo de Pregunta'
+        verbose_name_plural = 'Tipos de Pregunta'
+        ordering = ['nombre']
+    
+    def __str__(self):
+        return self.nombre
 
 class Pregunta(models.Model):
     titulo = models.CharField(max_length=100) 

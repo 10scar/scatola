@@ -35,15 +35,37 @@
                 </a>
             </li>
 
-            <!-- Gestionar preguntas -->
+            <!-- Gestionar Preguntas -->
             <li>
-                <a href="{% url 'dashboard_admin' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Gestionar preguntas">
+                <a href="{% url 'dashboard_admin:pregunta_list' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Gestión de Preguntas">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="inline-block size-4 my-1.5">
                         <circle cx="12" cy="12" r="10"></circle>
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                         <path d="M12 17h.01"></path>
                     </svg>
-                    <span class="is-drawer-close:hidden">Gestionar preguntas</span>
+                    <span class="is-drawer-close:hidden">Preguntas</span>
+                </a>
+            </li>
+
+            <!-- Gestionar Tipos de Pregunta -->
+            <li>
+                <a href="{% url 'dashboard_admin:tipo_pregunta_list' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Gestión de Tipos de Pregunta">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="inline-block size-4 my-1.5">
+                        <path d="M4 7h16"></path>
+                        <path d="M5 7v13a2 2 0 002 2h10a2 2 0 002-2V7"></path>
+                        <path d="M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"></path>
+                    </svg>
+                    <span class="is-drawer-close:hidden">Tipos de Pregunta</span>
+                </a>
+            </li>
+
+            <!-- Gestionar Grupos -->
+            <li>
+                <a href="{% url 'dashboard_admin:grupo_list' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Gestión de Grupos">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="inline-block size-4 my-1.5">
+                        <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <span class="is-drawer-close:hidden">Grupos</span>
                 </a>
             </li>
 

@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}Preguntas - Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Encabezado -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Banco de Preguntas</h1>
+            <p class="text-gray-600 mt-1">Gestiona todas las preguntas del sistema</p>
+        </div>
+        <a href="{% url 'dashboard_admin:pregunta_create' %}" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Nueva Pregunta
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card bg-base-100 shadow-md mb-6">
+        <div class="card-body">
+            <form method="get" class="space-y-4">
+                <!-- Búsqueda -->
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <input 
+                            type="text" 
+                            name="search" 
+                            value="{{ search }}"
+                            placeholder="Buscar por título o descripción..." 
+                            class="input input-bordered w-full"
+                        />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                        Buscar
+                    </button>
+                </div>
+
+                <!-- Filtros avanzados -->
+                <details class="collapse collapse-arrow bg-base-200 rounded-lg">
+                    <summary class="collapse-title font-medium">
+                        Filtros Avanzados
+                        {% if filtros.tipo_pregunta or filtros.tipo_examen or filtros.grupo %}
+                        <span class="badge badge-primary ml-2">Activos</span>
+                        {% endif %}
+                    </summary>
+                    <div class="collapse-content">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                            <!-- Tipo de Pregunta -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text font-semibold">Tipo de Pregunta</span>
+                                </label>
+                                <select name="tipo_pregunta" class="select select-bordered w-full">
+                                    <option value="">Todos</option>
+                                    {% for tipo in tipos_pregunta %}
+                                    <option value="{{ tipo.id }}" {% if filtros.tipo_pregunta == tipo.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ tipo.nombre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Tipo de Examen -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text font-semibold">Tipo de Examen</span>
+                                </label>
+                                <select name="tipo_examen" class="select select-bordered w-full">
+                                    <option value="">Todos</option>
+                                    {% for tipo in tipos_examen %}
+                                    <option value="{{ tipo.id }}" {% if filtros.tipo_examen == tipo.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ tipo.nombre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Grupo -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text font-semibold">Grupo</span>
+                                </label>
+                                <select name="grupo" class="select select-bordered w-full">
+                                    <option value="">Todos</option>
+                                    {% for grupo in grupos %}
+                                    <option value="{{ grupo.id }}" {% if filtros.grupo == grupo.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ grupo.titulo }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-2 mt-4">
+                            <a href="{% url 'dashboard_admin:pregunta_list' %}" class="btn btn-ghost btn-sm">
+                                Limpiar Filtros
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </details>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Preguntas -->
+    {% if preguntas %}
+    <div class="space-y-4">
+        {% for pregunta in preguntas %}
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+            <div class="card-body">
+                <div class="flex justify-between items-start gap-4">
+                    <!-- Contenido de la pregunta -->
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg mb-2">{{ pregunta.titulo }}</h3>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ pregunta.descripcion|truncatewords:30 }}</p>
+                        
+                        <!-- Badges de información -->
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <div class="badge badge-primary">{{ pregunta.tipo_pregunta.nombre }}</div>
+                            {% if pregunta.tipo_examen %}
+                            <div class="badge badge-secondary">{{ pregunta.tipo_examen.nombre }}</div>
+                            {% endif %}
+                            {% if pregunta.grupo %}
+                            <div class="badge badge-accent">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                                </svg>
+                                {{ pregunta.grupo.titulo }}
+                            </div>
+                            {% endif %}
+                            {% if pregunta.contenido %}
+                            <div class="badge badge-ghost">{{ pregunta.contenido.titulo|truncatewords:5 }}</div>
+                            {% endif %}
+                            <div class="badge badge-outline">{{ pregunta.opciones.count }} opciones</div>
+                        </div>
+
+                        <!-- Imagen miniatura si existe -->
+                        {% if pregunta.imagen %}
+                        <div class="mt-2">
+                            <img src="{{ pregunta.imagen.url }}" alt="Imagen pregunta" class="h-16 w-auto rounded border">
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="flex flex-col gap-2">
+                        <a href="{% url 'dashboard_admin:pregunta_detail' pregunta.pk %}" class="btn btn-sm btn-primary btn-outline">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                            </svg>
+                            Ver
+                        </a>
+                        <a href="{% url 'dashboard_admin:pregunta_update' pregunta.pk %}" class="btn btn-sm btn-ghost">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                            Editar
+                        </a>
+                        <a href="{% url 'dashboard_admin:pregunta_delete' pregunta.pk %}" class="btn btn-sm btn-error btn-outline">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if is_paginated %}
+    <div class="flex justify-center mt-8">
+        <div class="btn-group">
+            {% if page_obj.has_previous %}
+            <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if filtros.tipo_pregunta %}&tipo_pregunta={{ filtros.tipo_pregunta }}{% endif %}{% if filtros.tipo_examen %}&tipo_examen={{ filtros.tipo_examen }}{% endif %}{% if filtros.grupo %}&grupo={{ filtros.grupo }}{% endif %}" class="btn btn-sm">««</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if filtros.tipo_pregunta %}&tipo_pregunta={{ filtros.tipo_pregunta }}{% endif %}{% if filtros.tipo_examen %}&tipo_examen={{ filtros.tipo_examen }}{% endif %}{% if filtros.grupo %}&grupo={{ filtros.grupo }}{% endif %}" class="btn btn-sm">«</a>
+            {% endif %}
+            
+            <button class="btn btn-sm btn-active">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</button>
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if filtros.tipo_pregunta %}&tipo_pregunta={{ filtros.tipo_pregunta }}{% endif %}{% if filtros.tipo_examen %}&tipo_examen={{ filtros.tipo_examen }}{% endif %}{% if filtros.grupo %}&grupo={{ filtros.grupo }}{% endif %}" class="btn btn-sm">»</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if filtros.tipo_pregunta %}&tipo_pregunta={{ filtros.tipo_pregunta }}{% endif %}{% if filtros.tipo_examen %}&tipo_examen={{ filtros.tipo_examen }}{% endif %}{% if filtros.grupo %}&grupo={{ filtros.grupo }}{% endif %}" class="btn btn-sm">»»</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>
+            {% if search or filtros.tipo_pregunta or filtros.tipo_examen or filtros.grupo %}
+            No se encontraron preguntas con los filtros aplicados.
+            {% else %}
+            No hay preguntas registradas. <a href="{% url 'dashboard_admin:pregunta_create' %}" class="link link-primary">Crea la primera</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

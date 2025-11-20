@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if messages %}
+<div class="space-y-2 mb-4">
+    {% for message in messages %}
+        <div class="p-4 rounded-lg 
+                    {% if message.tags == 'success' %}bg-green-100 text-green-700
+                    {% elif message.tags == 'error' %}bg-red-100 text-red-700
+                    {% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+<div class="min-h-screen bg-gray-50">
+    <div class="drawer drawer-open">
+        <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content">
+            {% block page_content %} {% endblock %}
+        </div>
+        {% include 'profile/navbar.html' %}
+    </div>
+    
+</div>
+
+{% endblock %}

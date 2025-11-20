@@ -36,6 +36,5 @@ urlpatterns = [
     # Gestión de Temas y Contenidos (Admin)
     path('dashboard/admin/', include('preguntas.urls_admin')),
 
-
     
 ]

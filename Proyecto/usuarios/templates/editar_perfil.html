@@ -1,0 +1,86 @@
+{% extends "profile/dashboard_perfil.html" %}
+{% load static %}
+
+{% block page_content %}
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-10">
+
+    <div class="mb-8 border-b border-gray-200">
+        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+            <li class="mr-2" role="presentation">
+                <a class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active">
+                    Perfil
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="p-4 rounded-lg bg-gray-50">
+
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 break-all">Actualizando datos</h1>
+        </div>
+
+        <!-- FORMULARIO -->
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- CAMPOS DEL USUARIO -->
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Nombre</p>
+                {{ form_user.first_name }}
+                {% for error in form_user.first_name.errors %}
+                    <p class="text-red-600 text-sm">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Correo electrónico</p>
+                {{ form_user.email }}
+                {% for error in form_user.email.errors %}
+                    <p class="text-red-600 text-sm ">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <!-- CAMPOS DEL PERFIL -->
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Edad</p>
+                {{ form_perfil.edad }}
+                {% for error in form_perfil.edad.errors %}
+                    <p class="text-red-600 text-sm">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Institución</p>
+                {{ form_perfil.institucion }}
+                {% for error in form_perfil.institucion.errors %}
+                    <p class="text-red-600 text-sm">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Nivel de formación</p>
+                {{ form_perfil.nivel_formacion }}
+                {% for error in form_perfil.nivel_formacion.errors %}
+                    <p class="text-red-600 text-sm">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <!-- BOTONES -->
+            <div class="flex space-x-4">
+                <button type="submit"
+                        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">
+                    Guardar cambios
+                </button>
+
+                <button type="button"
+                        onclick="window.history.back()"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">
+                    Atrás
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

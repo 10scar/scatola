@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Pregunta{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <div class="text-sm breadcrumbs mb-6">
+        <ul>
+            <li><a href="{% url 'dashboard_admin' %}" class="text-primary hover:text-primary-focus">Dashboard</a></li>
+            <li><a href="{% url 'dashboard_admin:pregunta_list' %}" class="text-primary hover:text-primary-focus">Preguntas</a></li>
+            <li class="text-base-content">Eliminar Pregunta</li>
+        </ul>
+    </div>
+
+    <div class="max-w-3xl mx-auto">
+        <!-- Card de Confirmación -->
+        <div class="card bg-base-100 shadow-xl border-2 border-error">
+            <div class="card-body">
+                <!-- Header con Icono de Advertencia -->
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="bg-error/10 p-4 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-error">Eliminar Pregunta</h1>
+                        <p class="text-base-content/70 mt-1">Esta acción no se puede deshacer</p>
+                    </div>
+                </div>
+
+                <!-- Alert de Advertencia -->
+                <div class="alert alert-warning shadow-lg mb-6">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <div>
+                            <h3 class="font-bold">¡Atención!</h3>
+                            <div class="text-sm">Al eliminar esta pregunta, también se eliminarán todas sus opciones de respuesta asociadas.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de la Pregunta a Eliminar -->
+                <div class="bg-base-200 rounded-lg p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4">Pregunta a eliminar:</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- Título -->
+                        <div>
+                            <p class="text-sm text-base-content/60 mb-1">Título:</p>
+                            <p class="text-lg font-semibold">{{ object.titulo }}</p>
+                        </div>
+
+                        <!-- Descripción -->
+                        {% if object.descripcion %}
+                        <div>
+                            <p class="text-sm text-base-content/60 mb-1">Descripción:</p>
+                            <p>{{ object.descripcion|truncatewords:30 }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Badges de Información -->
+                        <div class="flex flex-wrap gap-2">
+                            <div class="badge badge-primary">
+                                {{ object.tipo_pregunta.nombre }}
+                            </div>
+                            {% if object.tipo_examen %}
+                            <div class="badge badge-secondary">
+                                {{ object.tipo_examen.nombre }}
+                            </div>
+                            {% endif %}
+                            {% if object.grupo %}
+                            <div class="badge badge-accent">
+                                Grupo: {{ object.grupo.titulo }}
+                            </div>
+                            {% endif %}
+                            {% if object.contenido %}
+                            <div class="badge badge-info">
+                                Contenido: {{ object.contenido.titulo }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Estadísticas -->
+                        <div class="stats shadow bg-base-100 w-full">
+                            <div class="stat place-items-center">
+                                <div class="stat-title">Total Opciones</div>
+                                <div class="stat-value text-primary">{{ object.opciones.count }}</div>
+                                <div class="stat-desc">serán eliminadas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario de Confirmación -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Confirmación Checkbox -->
+                    <div class="form-control mb-6">
+                        <label class="label cursor-pointer justify-start gap-3">
+                            <input type="checkbox" id="confirm-delete" class="checkbox checkbox-error" required />
+                            <span class="label-text font-medium">Confirmo que deseo eliminar permanentemente esta pregunta y todas sus opciones</span>
+                        </label>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="card-actions justify-end gap-3">
+                        <a href="{% url 'dashboard_admin:pregunta_detail' object.pk %}" class="btn btn-ghost">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Cancelar
+                        </a>
+                        <button type="submit" id="delete-button" class="btn btn-error" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Eliminar Pregunta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Información Adicional -->
+        <div class="alert alert-info mt-6 shadow-lg">
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                    <h3 class="font-bold">Información</h3>
+                    <div class="text-sm">Si la pregunta pertenece a un grupo, será removida automáticamente de ese grupo.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para habilitar/deshabilitar botón de eliminación -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('confirm-delete');
+        const deleteButton = document.getElementById('delete-button');
+
+        checkbox.addEventListener('change', function() {
+            deleteButton.disabled = !this.checked;
+        });
+    });
+</script>
+{% endblock %}

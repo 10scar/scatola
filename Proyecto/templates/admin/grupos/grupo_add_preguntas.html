@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Agregar Preguntas a Grupo - Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <div class="text-sm breadcrumbs mb-6">
+        <ul>
+            <li><a href="{% url 'dashboard_admin:grupo_list' %}">Grupos</a></li>
+            <li><a href="{% url 'dashboard_admin:grupo_detail' grupo.pk %}">{{ grupo.titulo }}</a></li>
+            <li>Agregar Preguntas</li>
+        </ul>
+    </div>
+
+    <!-- Información del Grupo -->
+    <div class="card bg-primary text-primary-content shadow-xl mb-6">
+        <div class="card-body">
+            <h2 class="card-title text-2xl">{{ grupo.titulo }}</h2>
+            {% if grupo.descripcion %}
+            <p class="opacity-90">{{ grupo.descripcion|truncatewords:50 }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Barra de búsqueda -->
+        <div class="card bg-base-100 shadow-md mb-6">
+            <div class="card-body">
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <input 
+                            type="text" 
+                            name="buscar" 
+                            value="{{ busqueda }}"
+                            placeholder="Buscar preguntas por título o descripción..." 
+                            class="input input-bordered w-full"
+                        />
+                    </div>
+                    <button type="submit" formaction="?buscar={{ busqueda }}" formmethod="get" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                        Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Preguntas Disponibles -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h3 class="text-xl font-bold mb-4">Selecciona preguntas para agregar al grupo</h3>
+                
+                {% if form.preguntas %}
+                <div class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                    {% for checkbox in form.preguntas %}
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-4 p-4 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
+                            {{ checkbox.tag }}
+                            <div class="flex-1">
+                                <span class="label-text font-semibold text-base">{{ checkbox.choice_label.titulo }}</span>
+                                <p class="text-sm text-gray-600 mt-1">{{ checkbox.choice_label.descripcion|truncatewords:20 }}</p>
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    <div class="badge badge-sm badge-primary">{{ checkbox.choice_label.tipo_pregunta.nombre }}</div>
+                                    {% if checkbox.choice_label.tipo_examen %}
+                                    <div class="badge badge-sm badge-secondary">{{ checkbox.choice_label.tipo_examen.nombre }}</div>
+                                    {% endif %}
+                                    {% if checkbox.choice_label.contenido %}
+                                    <div class="badge badge-sm badge-ghost">{{ checkbox.choice_label.contenido.titulo|truncatewords:5 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>
+                        {% if busqueda %}
+                        No se encontraron preguntas disponibles que coincidan con "{{ busqueda }}".
+                        {% else %}
+                        No hay preguntas disponibles para agregar a este grupo. Todas las preguntas ya están asignadas o no existen preguntas en el sistema.
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+
+                <!-- Errores del formulario -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-error mt-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ form.non_field_errors.0 }}</span>
+                </div>
+                {% endif %}
+
+                <!-- Botones de acción -->
+                <div class="card-actions justify-end gap-2 mt-6 pt-4 border-t">
+                    <a href="{% url 'dashboard_admin:grupo_detail' grupo.pk %}" class="btn btn-ghost">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary" {% if not form.preguntas %}disabled{% endif %}>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        Agregar Seleccionadas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

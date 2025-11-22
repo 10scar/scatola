@@ -1,6 +1,5 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, FormView
 from django.urls import reverse_lazy
@@ -61,30 +60,10 @@ class TemaListView(AdminRequiredMixin, ListView):
         context['search'] = self.request.GET.get('search', '')
         return context
 
-# ...existing code... (el resto de tus vistas)
 
 
-class TemaListView(AdminRequiredMixin, ListView):
-    """Vista para listar todos los temas"""
-    model = Tema
-    template_name = 'admin/temas/tema_list.html'
-    context_object_name = 'temas'
-    paginate_by = 10
-    
-    def get_queryset(self):
-        queryset = Tema.objects.prefetch_related('temarios').order_by('prioridad', 'nombre')
-        
-        # Filtro por búsqueda
-        search = self.request.GET.get('search')
-        if search:
-            queryset = queryset.filter(nombre__icontains=search)
-        
-        return queryset
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['search'] = self.request.GET.get('search', '')
-        return context
+
+
 
 
 class TemaCreateView(AdminRequiredMixin, CreateView):
@@ -92,7 +71,7 @@ class TemaCreateView(AdminRequiredMixin, CreateView):
     model = Tema
     form_class = TemaForm
     template_name = 'admin/temas/tema_form.html'
-    success_url = reverse_lazy('usuarios:tema_list')
+    success_url = reverse_lazy('dashboard_admin:tema_list')
     
     def form_valid(self, form):
         messages.success(self.request, f'Tema "{form.instance.nombre}" creado exitosamente.')
@@ -110,7 +89,7 @@ class TemaUpdateView(AdminRequiredMixin, UpdateView):
     model = Tema
     form_class = TemaForm
     template_name = 'admin/temas/tema_form.html'
-    success_url = reverse_lazy('usuarios:tema_list')
+    success_url = reverse_lazy('dashboard_admin:tema_list')
     
     def form_valid(self, form):
         messages.success(self.request, f'Tema "{form.instance.nombre}" actualizado exitosamente.')
@@ -127,7 +106,7 @@ class TemaDeleteView(AdminRequiredMixin, DeleteView):
     """Vista para eliminar un tema"""
     model = Tema
     template_name = 'admin/temas/tema_confirm_delete.html'
-    success_url = reverse_lazy('usuarios:tema_list')
+    success_url = reverse_lazy('dashboard_admin:tema_list')
     
     def delete(self, request, *args, **kwargs):
         tema = self.get_object()
@@ -177,7 +156,7 @@ class ContenidoCreateView(AdminRequiredMixin, CreateView):
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:contenido_list', kwargs={'tema_id': self.tema.pk})
+        return reverse_lazy('dashboard_admin:contenido_list', kwargs={'tema_id': self.tema.pk})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -208,7 +187,7 @@ class ContenidoUpdateView(AdminRequiredMixin, UpdateView):
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:contenido_list', kwargs={'tema_id': self.tema.pk})
+        return reverse_lazy('dashboard_admin:contenido_list', kwargs={'tema_id': self.tema.pk})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -229,7 +208,7 @@ class ContenidoDeleteView(AdminRequiredMixin, DeleteView):
         return super().dispatch(request, *args, **kwargs)
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:contenido_list', kwargs={'tema_id': self.tema.pk})
+        return reverse_lazy('dashboard_admin:contenido_list', kwargs={'tema_id': self.tema.pk})
     
     def delete(self, request, *args, **kwargs):
         contenido = self.get_object()
@@ -329,10 +308,10 @@ class TemarioAddTemasView(AdminRequiredMixin, FormView):
         else:
             messages.warning(self.request, 'No se seleccionó ningún tema.')
         
-        return redirect('usuarios:temario_detail', comp_id=self.componente.pk)
+        return redirect('dashboard_admin:temario_detail', comp_id=self.componente.pk)
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:temario_detail', kwargs={'comp_id': self.componente.pk})
+        return reverse_lazy('dashboard_admin:temario_detail', kwargs={'comp_id': self.componente.pk})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -359,7 +338,7 @@ class TemarioRemoveTemaView(AdminRequiredMixin, DeleteView):
         )
     
     def get_success_url(self):
-        return reverse_lazy('usuarios:temario_detail', kwargs={'comp_id': self.componente.pk})
+        return reverse_lazy('dashboard_admin:temario_detail', kwargs={'comp_id': self.componente.pk})
     
     def delete(self, request, *args, **kwargs):
         temario = self.get_object()

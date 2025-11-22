@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load pregunta_tags %}
+
+{% block title %}Preguntas de {{ contenido.titulo }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <div class="text-sm breadcrumbs mb-6">
+        <ul>
+            <li><a href="{% url 'dashboard_admin' %}" class="text-primary hover:text-primary-focus">Dashboard</a></li>
+            <li><a href="{% url 'dashboard_admin:pregunta_list' %}" class="text-primary hover:text-primary-focus">Preguntas</a></li>
+            <li class="text-base-content">Contenido: {{ contenido.titulo }}</li>
+        </ul>
+    </div>
+
+    <!-- Header con información del contenido -->
+    <div class="mb-8">
+        <div class="card bg-gradient-to-r from-primary to-secondary text-primary-content shadow-xl">
+            <div class="card-body">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <h1 class="text-3xl font-bold">{{ contenido.titulo }}</h1>
+                        </div>
+                        {% if contenido.descripcion %}
+                        <p class="opacity-90 text-lg">{{ contenido.descripcion }}</p>
+                        {% endif %}
+                        {% if contenido.tema %}
+                        <div class="badge badge-lg bg-white/20 border-white/40 text-white mt-3">
+                            Tema: {{ contenido.tema.titulo }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="stats shadow bg-white/10 backdrop-blur-sm">
+                        <div class="stat place-items-center">
+                            <div class="stat-title text-primary-content/80">Total Preguntas</div>
+                            <div class="stat-value text-white">{{ preguntas.count }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Acciones -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div class="flex gap-2">
+            <a href="{% url 'dashboard_admin:pregunta_create' %}?contenido={{ contenido.id }}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Nueva Pregunta para este Contenido
+            </a>
+        </div>
+        <a href="{% url 'dashboard_admin:pregunta_list' %}" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver a Todas las Preguntas
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="collapse collapse-arrow bg-base-200 mb-6">
+        <input type="checkbox" /> 
+        <div class="collapse-title text-lg font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filtros de Búsqueda
+        </div>
+        <div class="collapse-content"> 
+            <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                <input type="hidden" name="contenido" value="{{ contenido.id }}">
+                
+                <!-- Búsqueda por texto -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Buscar por título</span>
+                    </label>
+                    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar..." class="input input-bordered w-full" />
+                </div>
+
+                <!-- Filtro por Tipo de Pregunta -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Tipo de Pregunta</span>
+                    </label>
+                    <select name="tipo_pregunta" class="select select-bordered w-full">
+                        <option value="">Todos los tipos</option>
+                        {% for tipo in tipos_pregunta %}
+                        <option value="{{ tipo.id }}" {% if request.GET.tipo_pregunta == tipo.id|stringformat:"s" %}selected{% endif %}>
+                            {{ tipo.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Filtro por Grupo -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Grupo</span>
+                    </label>
+                    <select name="grupo" class="select select-bordered w-full">
+                        <option value="">Todos los grupos</option>
+                        {% for grupo in grupos %}
+                        <option value="{{ grupo.id }}" {% if request.GET.grupo == grupo.id|stringformat:"s" %}selected{% endif %}>
+                            {{ grupo.titulo }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="form-control md:col-span-3 flex flex-row gap-2 justify-end items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Aplicar Filtros
+                    </button>
+                    <a href="?contenido={{ contenido.id }}" class="btn btn-ghost">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+    <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} shadow-lg">
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>{{ message }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Lista de Preguntas -->
+    {% if preguntas %}
+    <div class="grid grid-cols-1 gap-4 mb-8">
+        {% for pregunta in preguntas %}
+        <div class="card bg-base-100 shadow-lg hover:shadow-2xl transition-all duration-300 border border-base-300">
+            <div class="card-body">
+                <div class="flex flex-col lg:flex-row justify-between gap-4">
+                    <!-- Contenido Principal -->
+                    <div class="flex-1">
+                        <h2 class="card-title text-xl mb-2">
+                            {{ pregunta.titulo }}
+                        </h2>
+                        
+                        {% if pregunta.descripcion %}
+                        <p class="text-base-content/70 mb-3">{{ pregunta.descripcion|truncatewords:30 }}</p>
+                        {% endif %}
+
+                        <!-- Badges -->
+                        <div class="flex flex-wrap gap-2">
+                            <div class="badge badge-primary">
+                                {{ pregunta.tipo_pregunta.nombre }}
+                            </div>
+                            {% if pregunta.tipo_examen %}
+                            <div class="badge badge-secondary">
+                                {{ pregunta.tipo_examen.nombre }}
+                            </div>
+                            {% endif %}
+                            {% if pregunta.grupo %}
+                            <div class="badge badge-accent">
+                                Grupo: {{ pregunta.grupo.titulo }}
+                            </div>
+                            {% endif %}
+                            <div class="badge badge-outline">
+                                {{ pregunta.opciones.count }} opciones
+                            </div>
+                            {% with correctas=pregunta|opciones_correctas %}
+                            {% if correctas > 0 %}
+                            <div class="badge badge-success gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                {{ correctas }} correcta{{ correctas|pluralize }}
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="flex flex-col lg:flex-row gap-2 lg:items-start">
+                        <a href="{% url 'dashboard_admin:pregunta_detail' pregunta.pk %}" class="btn btn-sm btn-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Ver
+                        </a>
+                        <a href="{% url 'dashboard_admin:pregunta_update' pregunta.pk %}" class="btn btn-sm btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Editar
+                        </a>
+                        <a href="{% url 'dashboard_admin:pregunta_delete' pregunta.pk %}" class="btn btn-sm btn-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if is_paginated %}
+    <div class="flex justify-center">
+        <div class="btn-group">
+            {% if page_obj.has_previous %}
+            <a href="?page=1&contenido={{ contenido.id }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.tipo_pregunta %}&tipo_pregunta={{ request.GET.tipo_pregunta }}{% endif %}{% if request.GET.grupo %}&grupo={{ request.GET.grupo }}{% endif %}" class="btn btn-sm">«</a>
+            <a href="?page={{ page_obj.previous_page_number }}&contenido={{ contenido.id }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.tipo_pregunta %}&tipo_pregunta={{ request.GET.tipo_pregunta }}{% endif %}{% if request.GET.grupo %}&grupo={{ request.GET.grupo }}{% endif %}" class="btn btn-sm">‹</a>
+            {% endif %}
+            
+            <button class="btn btn-sm btn-active">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</button>
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&contenido={{ contenido.id }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.tipo_pregunta %}&tipo_pregunta={{ request.GET.tipo_pregunta }}{% endif %}{% if request.GET.grupo %}&grupo={{ request.GET.grupo }}{% endif %}" class="btn btn-sm">›</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&contenido={{ contenido.id }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.tipo_pregunta %}&tipo_pregunta={{ request.GET.tipo_pregunta }}{% endif %}{% if request.GET.grupo %}&grupo={{ request.GET.grupo }}{% endif %}" class="btn btn-sm">»</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <!-- Estado Vacío -->
+    <div class="card bg-base-200 shadow-xl">
+        <div class="card-body items-center text-center py-16">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-base-content/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="text-2xl font-bold mb-2">No hay preguntas para este contenido</h2>
+            <p class="text-base-content/70 mb-6">Comienza agregando la primera pregunta para este contenido.</p>
+            <a href="{% url 'dashboard_admin:pregunta_create' %}?contenido={{ contenido.id }}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Crear Primera Pregunta
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

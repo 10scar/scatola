@@ -2,14 +2,16 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.views.generic import FormView, TemplateView, ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import FormView, TemplateView
 from django.urls import reverse_lazy
 from formtools.wizard.views import SessionWizardView
-from .models import Usuario, Perfil
+from .models import Usuario, Perfil, NivelFormacion
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group
-from .forms import (LoginForm, Paso1PersonalForm, Paso2AcademicoForm, Paso3SeguridadForm)
+from .forms import (
+    LoginForm, Paso1PersonalForm, Paso2AcademicoForm, Paso3SeguridadForm,
+    UserUpdateForm, PerfilUpdateForm,
+)
 
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -23,6 +25,45 @@ def get_redirect_url_by_role(user):
     
     return 'dashboard_estudiante'
 
+
+@login_required
+def profile_details(request):
+    usuario = request.user
+    perfil, created = Perfil.objects.get_or_create(usuario=usuario)
+
+    context = {
+        "usuario": usuario,
+        "perfil": perfil,
+    }
+    return render(request, 'perfil_estudiante.html', context)
+
+@login_required
+def editar_perfil(request):
+    usuario = request.user
+    perfil, created = Perfil.objects.get_or_create(usuario=usuario)
+    niveles = NivelFormacion.objects.all()
+
+    if request.method == "POST":
+        form_user = UserUpdateForm(request.POST, instance=usuario)
+        form_perfil = PerfilUpdateForm(request.POST, instance=perfil)
+
+        if form_user.is_valid() and form_perfil.is_valid():
+            form_user.save()
+            form_perfil.save()
+            
+            messages.success(request, "¡Datos actualizados correctamente!")
+            return redirect("usuarios:profile_details")
+        else:
+            messages.error(request, "Por favor corrige los errores del formulario.")
+    else:
+        form_user = UserUpdateForm(instance=usuario)
+        form_perfil = PerfilUpdateForm(instance=perfil)
+
+    return render(request, "editar_perfil.html", {
+        "form_user": form_user,
+        "form_perfil": form_perfil,
+    })
+    
 
 class RegistroWizard(SessionWizardView):
     """Multi-step registration wizard con cache"""

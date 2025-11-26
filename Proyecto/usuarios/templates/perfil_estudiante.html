@@ -8,9 +8,31 @@
     <div class="mb-8 border-b border-gray-200">
         <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
             <li class="mr-2" role="presentation">
-                <a class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active" id="profile-tab" type="button" role="tab" aria-controls="profile" aria-selected="true">
+
+                <!-- TAB PERFIL -->
+                <a href="{% url 'usuarios:profile_details' %}"
+                class="inline-block p-4 rounded-t-lg 
+                {% if request.resolver_match.url_name == 'profile_details' %}
+                        text-blue-600 border-b-2 border-blue-600
+                {% else %}
+                        text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300
+                {% endif %}
+                ">
                     Perfil
                 </a>
+
+                <!-- TAB RUTAS -->
+                <a href="{% url 'usuarios:ver_rutas' %}"
+                class="inline-block p-4 rounded-t-lg 
+                {% if request.resolver_match.url_name == 'ver_rutas' %}
+                        text-blue-600 border-b-2 border-blue-600
+                {% else %}
+                        text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300
+                {% endif %}
+                ">
+                    Rutas de aprendizaje
+                </a>
+
             </li>
         </ul>
     </div>
@@ -33,7 +55,14 @@
                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                     <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Nombre</p>
                     <p class="text-lg font-medium text-gray-900">
-                        {{ usuario.first_name }} {{ usuario.last_name }}
+                        {{ usuario.first_name }}
+                    </p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Apellido</p>
+                    <p class="text-lg font-medium text-gray-900">
+                        {{ usuario.last_name }}
                     </p>
                 </div>
 
@@ -47,21 +76,21 @@
                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                     <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Edad</p>
                     <p class="text-lg font-medium text-gray-900">
-                        {{ perfil.edad }}
+                        {{ perfil.edad|default_if_none:"" }}
                     </p>
                 </div>
 
                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                     <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Institución</p>
                     <p class="text-lg font-medium text-gray-900">
-                        {{ perfil.institucion }}
+                        {{ perfil.institucion|default_if_none:"" }}
                     </p>
                 </div>
 
                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                     <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Nivel de formación</p>
                     <p class="text-lg font-medium text-gray-900">
-                        {{ perfil.nivel_formacion }}
+                        {{ perfil.nivel_formacion|default_if_none:"" }}
                     </p>
                 </div>
             </div>

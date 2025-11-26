@@ -9,7 +9,10 @@ from .models import Usuario, Perfil, NivelFormacion
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group
 from .forms import (LoginForm, Paso1PersonalForm, Paso2AcademicoForm, Paso3SeguridadForm, UserUpdateForm, PerfilUpdateForm)
-
+from rutas.models import Ruta
+from preguntas.models import TipoExamen, Componente
+from rutas.forms import RutaUsuarioForm
+from rutas.services import sincronizar_lecciones
 
 def get_redirect_url_by_role(user):
     if user.groups.filter(name='Administrador').exists():
@@ -56,6 +59,57 @@ def editar_perfil(request):
         "form_perfil": form_perfil,
     })
     
+@login_required
+def editar_ruta_usuario(request):
+    ruta_obj, _ = Ruta.objects.get_or_create(usuario=request.user)
+
+    icfes = TipoExamen.objects.filter(nombre__icontains="ICFES")
+    unal = TipoExamen.objects.filter(nombre__icontains="UNAL")
+    try:
+        icfes_exam = TipoExamen.objects.get(nombre="ICFES Saber 11")
+    except TipoExamen.DoesNotExist:
+        icfes_exam = None
+
+    try:
+        unal_exam = TipoExamen.objects.get(nombre="Admisión UNAL")
+    except TipoExamen.DoesNotExist:
+        unal_exam = None
+
+    componentes_icfes = Componente.objects.filter(tipo_examen=icfes_exam) if icfes_exam else Componente.objects.none()
+    componentes_unal = Componente.objects.filter(tipo_examen=unal_exam) if unal_exam else Componente.objects.none()
+    componentes_icfes_ids = list(componentes_icfes.values_list('id', flat=True))
+    componentes_unal_ids = list(componentes_unal.values_list('id', flat=True))
+
+    if request.method == "POST":
+        form = RutaUsuarioForm(request.POST, instance=ruta_obj)
+        if form.is_valid():
+            ruta = form.save(commit=False)
+            ruta.usuario = request.user
+            ruta.save()
+            form.save_m2m()
+            sincronizar_lecciones(ruta.id)
+            messages.success(request, "Ruta y componentes guardados correctamente.")
+            return redirect("usuarios:ver_rutas") 
+        else:
+            messages.error(request, "Corrige los errores del formulario.")
+    else:
+        form = RutaUsuarioForm(instance=ruta_obj)
+
+    context = {
+        "form": form,
+        "componentes_icfes": componentes_icfes,
+        "componentes_unal": componentes_unal,
+        "icfes_exam": icfes_exam,
+        "unal_exam": unal_exam,
+        "componentes_icfes_ids": componentes_icfes_ids,
+        "componentes_unal_ids": componentes_unal_ids,
+        "usuario_examenes": list(ruta_obj.examenes.values_list("id", flat=True)),
+        "usuario_componentes": list(ruta_obj.componentes.values_list("id", flat=True)),
+    }
+
+    return render(request, "modificar_rutas.html", context)
+
+
 
 class RegistroWizard(SessionWizardView):
     """Multi-step registration wizard con cache"""
@@ -92,8 +146,8 @@ class RegistroWizard(SessionWizardView):
         
         # Login automático
         login(self.request, authenticate(username=data['username'], password=data['password1']))
-        messages.success(self.request, f'¡Bienvenido {user.first_name}!')
-        return redirect('dashboard_estudiante')
+        messages.success(self.request, f'¡{user.first_name}!, por favor selecciona tu ruta de aprendizaje')
+        return redirect('usuarios:ver_rutas')
 
 
 class LoginView(FormView):

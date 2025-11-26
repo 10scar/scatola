@@ -8,7 +8,7 @@ INPUT_CLASSES = 'mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rou
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = Usuario
-        fields = ["first_name", "email"]
+        fields = ["first_name", "last_name", "email"]
 
         widgets = {
             "first_name": forms.TextInput(attrs={
@@ -16,6 +16,12 @@ class UserUpdateForm(forms.ModelForm):
                             "focus:outline-none focus:ring-blue-500 focus:border-blue-500 "
                             "text-gray-900 placeholder-gray-400",
                 "placeholder": "Tu nombre"
+            }),
+            "last_name": forms.TextInput(attrs={
+                "class": "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm "
+                            "focus:outline-none focus:ring-blue-500 focus:border-blue-500 "
+                            "text-gray-900 placeholder-gray-400",
+                "placeholder": "Tu Apellido"
             }),
             "email": forms.EmailInput(attrs={
                 "class": "mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm "

@@ -23,4 +23,6 @@ python manage.py shell -c "from preguntas.carga import temario; temario.poblar_d
 echo "Creando dos usuarios por defecto ..."
 python manage.py shell -c "from usuarios.carga import users_default; users_default.poblar_datos()"
 
+echo "Creando preguntas por defecto ..."
+python manage.py shell -c "from preguntas.carga import preguntas; preguntas.poblar_preguntas_desde_temario()"
 exec "$@"

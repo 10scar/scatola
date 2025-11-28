@@ -1,0 +1,251 @@
+{% extends "profile/dashboard_perfil.html" %}
+{% load static %}
+
+{% block page_content %}
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- Tabs -->
+<div class="max-w-4xl mx-auto mt-10">
+    <div class="mb-8 border-b border-gray-200">
+        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
+            <li class="mr-2">
+
+                <a href="{% url 'usuarios:profile_details' %}"
+                   class="inline-block p-4 rounded-t-lg 
+                   {% if request.resolver_match.url_name == 'profile_details' %}
+                        text-blue-600 border-b-2 border-blue-600
+                   {% else %}
+                        text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300
+                   {% endif %}">
+                    Perfil
+                </a>
+
+                <a href="{% url 'usuarios:ver_rutas' %}"
+                   class="inline-block p-4 rounded-t-lg 
+                   {% if request.resolver_match.url_name == 'ver_rutas' %}
+                        text-blue-600 border-b-2 border-blue-600
+                   {% else %}
+                        text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300
+                   {% endif %}">
+                    Rutas de aprendizaje
+                </a>
+
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- FORMULARIO -->
+<div 
+    x-data="rutasForm(
+        {{ usuario_examenes|safe }}, 
+        {{ usuario_componentes|safe }},
+        {{ componentes_icfes_ids|safe }},
+        {{ componentes_unal_ids|safe }}
+    )"
+  class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg"
+>
+
+  <form method="POST" @submit="onSubmit($event)">
+    {% csrf_token %}
+    <h2 class="text-2xl font-bold mb-6 text-gray-900">Seleccionar rutas y componentes</h2>
+
+    <!-- BOTONES PRINCIPALES (RUTAS) -->
+    <div class="flex gap-4 mb-6">
+      {% if icfes_exam %}
+      <button 
+        type="button"
+        x-bind:class="selectedExams.includes({{ icfes_exam.id }}) 
+            ? 'bg-blue-600 text-white' 
+            : 'bg-gray-100 text-gray-700'"
+        @click="toggleExam({{ icfes_exam.id }})"
+        class="flex-1 py-3 rounded-lg font-semibold border"
+      >
+        ICFES
+      </button>
+      {% endif %}
+
+      {% if unal_exam %}
+      <button 
+        type="button"
+        x-bind:class="selectedExams.includes({{ unal_exam.id }}) 
+            ? 'bg-blue-600 text-white' 
+            : 'bg-gray-100 text-gray-700'"
+        @click="toggleExam({{ unal_exam.id }})"
+        class="flex-1 py-3 rounded-lg font-semibold border"
+      >
+        UNAL
+      </button>
+      {% endif %}
+    </div>
+
+    <!-- COMPONENTES ICFES -->
+    {% if icfes_exam %}
+    <div x-show="selectedExams.includes({{ icfes_exam.id }})" class="mb-6" x-cloak>
+      <h3 class="font-semibold mb-2 text-gray-900">Componentes ICFES</h3>
+      <div class="flex flex-wrap gap-2">
+        {% for c in componentes_icfes %}
+        <label class="inline-flex items-center text-gray-700 cursor-pointer">
+
+          <input 
+              type="checkbox" 
+              name="componentes" 
+              :value="'{{ c.id }}'"
+              :checked="selectedComponents.includes({{ c.id }})"
+              class="hidden"
+              @change="toggleComponent({{ c.id }})"
+          >
+
+          <span 
+              x-bind:class="selectedComponents.includes({{ c.id }}) 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-100 text-gray-700'"
+              class="px-3 py-1 rounded-md border text-sm"
+          >
+              {{ c.nombre }}
+          </span>
+
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- COMPONENTES UNAL -->
+    {% if unal_exam %}
+    <div x-show="selectedExams.includes({{ unal_exam.id }})" class="mb-6" x-cloak>
+      <h3 class="font-semibold mb-2 text-gray-900">Componentes UNAL</h3>
+      <div class="flex flex-wrap gap-2">
+        {% for c in componentes_unal %}
+        <label class="inline-flex items-center text-gray-700 cursor-pointer">
+
+          <input 
+              type="checkbox" 
+              name="componentes" 
+              :value="'{{ c.id }}'"
+              :checked="selectedComponents.includes({{ c.id }})"
+              class="hidden"
+              @change="toggleComponent({{ c.id }})"
+          >
+
+          <span 
+              x-bind:class="selectedComponents.includes({{ c.id }}) 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-100 text-gray-700'"
+              class="px-3 py-1 rounded-md border text-sm"
+          >
+              {{ c.nombre }}
+          </span>
+
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <template x-for="exam in selectedExams" :key="exam">
+      <input type="hidden" name="examenes" :value="exam">
+    </template>
+
+    <p x-text="error" class="text-red-600 mb-4" x-show="error"></p>
+
+    <div class="flex gap-3">
+      <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded-lg">Guardar</button>
+      <a href="{% url 'usuarios:profile_details' %}" class="flex-1 text-center py-2 rounded-lg border text-gray-700">Atrás</a>
+    </div>
+  </form>
+</div>
+
+<script>
+function rutasForm(initialExams = [], initialComponents = [], icfesComponents = [], unalComponents = []) {
+  return {
+    selectedExams: initialExams,
+    selectedComponents: initialComponents,
+    icfesComponents,
+    unalComponents,
+    error: "",
+
+    toggleExam(id) {
+      const idx = this.selectedExams.indexOf(id);
+
+      if (idx === -1) {
+        this.selectedExams.push(id);
+        return;
+      }
+
+      if (this.selectedExams.length === 1) {
+        this.error = "Debes seleccionar al menos una ruta.";
+        setTimeout(() => this.error = "", 2500);
+        return;
+      }
+
+      this.selectedExams.splice(idx, 1);
+
+      if (id ===  {{ icfes_exam.id }} ) {
+        this.selectedComponents = this.selectedComponents.filter(c => !this.icfesComponents.includes(c));
+      }
+
+      if (id ===  {{ unal_exam.id }} ) {
+        this.selectedComponents = this.selectedComponents.filter(c => !this.unalComponents.includes(c));
+      }
+    },
+
+    toggleComponent(id) {
+      const idx = this.selectedComponents.indexOf(id);
+
+      if (idx === -1) {
+        this.selectedComponents.push(id);
+      } else {
+        this.selectedComponents.splice(idx, 1);
+      }
+    },
+
+    onSubmit(e) {
+      if (this.selectedExams.length === 0) {
+        this.error = "Debes seleccionar al menos una ruta.";
+        e.preventDefault();
+        return;
+      }
+
+      if (this.selectedComponents.length === 0) {
+        this.error = "Debes seleccionar al menos un componente.";
+        e.preventDefault();
+        return;
+      }
+
+      const icfesId = {{ icfes_exam.id }}; 
+      const unalId = {{ unal_exam.id }};
+
+      let rutaSinComponente = false;
+
+      for (const examId of this.selectedExams) {
+        let componentesDeRuta = [];
+        
+        if (examId === icfesId) {
+          componentesDeRuta = this.icfesComponents;
+        } else if (examId === unalId) {
+          componentesDeRuta = this.unalComponents;
+        }
+
+        const tieneComponente = componentesDeRuta.some(componente => 
+          this.selectedComponents.includes(componente)
+        );
+
+        if (!tieneComponente) {
+          rutaSinComponente = true;
+          break; 
+        }
+      }
+
+      if (rutaSinComponente) {
+        this.error = "Cada ruta seleccionada debe tener al menos un componente asociado.";
+        e.preventDefault();
+        return;
+      }
+      
+    }
+
+  }
+}
+</script>
+{% endblock %}

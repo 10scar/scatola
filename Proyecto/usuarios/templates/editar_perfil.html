@@ -32,6 +32,14 @@
                     <p class="text-red-600 text-sm">{{ error }}</p>
                 {% endfor %}
             </div>
+            
+            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Apellido</p>
+                {{ form_user.last_name }}
+                {% for error in form_user.last_name.errors %}
+                    <p class="text-red-600 text-sm">{{ error }}</p>
+                {% endfor %}
+            </div>
 
             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                 <p class="text-xs font-semibold uppercase text-gray-500 mb-1">Correo electrónico</p>

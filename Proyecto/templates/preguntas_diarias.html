@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Preguntas Diarias{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 flex items-center justify-center">
+    <div class="max-w-2xl w-full">
+        {% if error %}
+            <!-- Error Message -->
+            <div class="card bg-white shadow-lg">
+                <div class="card-body">
+                    <div class="alert alert-error">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l-2-2m0 0l-2-2m2 2l2-2m-2 2l-2 2m2-2l2 2m-2-2v2m0 0v-2" />
+                        </svg>
+                        <span>{{ error }}</span>
+                    </div>
+                    <div class="card-actions justify-end mt-4">
+                        <a href="{% url 'dashboard_estudiante' %}" class="btn btn-primary">
+                            Volver al Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        {% elif completado %}
+            <!-- Completion Message -->
+            <div class="card bg-white shadow-2xl">
+                <div class="card-body items-center text-center p-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 text-success mb-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    
+                    <h1 class="card-title text-4xl mb-2">¡Excelente!</h1>
+                    <p class="text-lg text-gray-600 mb-4">Has completado todas las preguntas del día</p>
+                    
+                    <div class="divider"></div>
+                    
+                    <p class="text-sm text-gray-500 mb-6">
+                        Se han registrado {{ total }} respuestas y se actualizó tu racha.
+                    </p>
+                    
+                    <div class="card-actions justify-center">
+                        <a href="{% url 'dashboard_estudiante' %}" class="btn btn-primary gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                            </svg>
+                            Volver al Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

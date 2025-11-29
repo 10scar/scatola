@@ -78,7 +78,6 @@ class Pregunta(models.Model):
     grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True, blank=True)
     tipo_pregunta = models.ForeignKey(TipoPregunta, on_delete=models.PROTECT)
     tipo_examen = models.ForeignKey(TipoExamen, on_delete=models.CASCADE, null=True, blank=True)
-    prioridad = models.IntegerField(null=True, blank=True)
 
 class Opcion(models.Model):
     pregunta = models.ForeignKey(Pregunta, related_name='opciones', on_delete=models.CASCADE)

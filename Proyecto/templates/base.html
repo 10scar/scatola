@@ -38,7 +38,7 @@
                                 body: body,
                                 icon: '/static/img/conejo_dashboard.png'
                             });
-                            n.onclick = function(){ window.focus(); window.location.href = '/dashboard/estudiante/'; };
+                            n.onclick = function(){ window.focus(); window.location.href = "{% url 'usuarios:dashboard_estudiante' %}"; };
                         }
                     }catch(e){
                         console.error('Error comprobando recordatorio de racha', e);

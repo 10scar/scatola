@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from datetime import date, timedelta
+from datetime import timedelta
+from django.utils import timezone
 from django.apps import apps
 
 
@@ -32,7 +33,8 @@ class Perfil(models.Model):
         """
         Actualiza la racha y los puntaje del usuario.
         """
-        hoy = date.today()
+        # Usar la fecha local de Django para evitar desajustes por UTC
+        hoy = timezone.localdate()
         ayer = hoy - timedelta(days=1)
 
         # Obtener la fecha de la última respuesta diaria (si existe)
@@ -48,10 +50,17 @@ class Perfil(models.Model):
             )
             if fecha_dt:
                 try:
-                    ultima_fecha = fecha_dt.date()
+                    # si es datetime con timezone, convertir a hora local
+                    try:
+                        if timezone.is_aware(fecha_dt):
+                            fecha_local = timezone.localtime(fecha_dt)
+                        else:
+                            fecha_local = fecha_dt
+                        ultima_fecha = fecha_local.date()
+                    except Exception:
+                        ultima_fecha = fecha_dt
                 except Exception:
-                    # si por alguna razón no tiene método date(), intentar comparar directamente
-                    ultima_fecha = fecha_dt
+                    ultima_fecha = None
 
         # Si ya hubo actividad hoy, no hacer nada.
         if ultima_fecha == hoy:

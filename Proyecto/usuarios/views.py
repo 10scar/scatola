@@ -16,7 +16,8 @@ from .forms import (
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.utils import timezone
-from datetime import date, timedelta
+from datetime import timedelta
+from rutas.models import RespuestaDiaria
 
 
 def get_redirect_url_by_role(user):
@@ -136,8 +137,13 @@ def logout_view(request):
 
 @login_required
 def dashboard_estudiante(request):
+    usuario = request.user
+    perfil, _ = Perfil.objects.get_or_create(usuario=usuario)
+    preguntas_hoy = RespuestaDiaria.objects.filter(usuario=usuario, fecha__date=timezone.localdate()).count()
     context = {
-        'usuario': request.user,
+        'usuario': usuario,
+        'perfil': perfil,
+        'preguntas_hoy': preguntas_hoy,
     }
     return render(request, 'home_estudiante.html', context)
 
@@ -197,7 +203,13 @@ def recuerdo_racha(request):
     try:
         # Lógica localizada aquí: recordatorio si no existe `ultima_respuesta_diaria`
         # o si su fecha es anterior al día actual.
-        if not perfil.ultima_respuesta_diaria:
+        # Si el usuario ya respondió 6 (o más) preguntas hoy, no necesita recordatorio
+        from django.apps import apps
+        RespuestaDiaria = apps.get_model('rutas', 'RespuestaDiaria')
+        respuestas_hoy_count = RespuestaDiaria.objects.filter(usuario=request.user, fecha__date=timezone.localdate()).count()
+        if respuestas_hoy_count >= 6:
+            necesita = False
+        elif not perfil.ultima_respuesta_diaria:
             necesita = True
         else:
             from django.apps import apps
@@ -212,13 +224,20 @@ def recuerdo_racha(request):
                 necesita = True
             else:
                 try:
-                    ultima_fecha = fecha_dt.date()
-                except Exception:
-                    ultima_fecha = fecha_dt
+                    # Convertir a hora local si es un datetime con tz
+                    try:
+                        if timezone.is_aware(fecha_dt):
+                            fecha_local = timezone.localtime(fecha_dt)
+                        else:
+                            fecha_local = fecha_dt
+                        ultima_fecha = fecha_local.date()
+                    except Exception:
+                        ultima_fecha = fecha_dt
 
-                from datetime import date
-                hoy = date.today()
-                necesita = (ultima_fecha != hoy)
+                    hoy = timezone.localdate()
+                    necesita = (ultima_fecha != hoy)
+                except Exception:
+                    necesita = True
     except Exception:
         # En caso de error defensivo, pedir recordatorio para mayor seguridad
         necesita = True

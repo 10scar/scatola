@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Pregunta {{ indice_actual }}/{{ total_preguntas }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 flex items-center justify-center">
+    <div class="max-w-2xl w-full">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex justify-between mb-2">
+                <span class="text-sm font-semibold text-gray-700">Pregunta {{ indice_actual }} de {{ total_preguntas }}</span>
+                <span class="text-sm font-semibold text-gray-500">{{ indice_actual }}/{{ total_preguntas }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-300" 
+                     id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Card Pregunta -->
+        <div class="card bg-white shadow-2xl">
+            <div class="card-body p-8">
+                <!-- Título Pregunta -->
+                <h1 class="card-title text-3xl mb-6 text-gray-800">{{ pregunta.titulo }}</h1>
+
+                <!-- Descripción -->
+                {% if pregunta.descripcion %}
+                    <p class="text-gray-600 mb-6 text-lg leading-relaxed">{{ pregunta.descripcion }}</p>
+                {% endif %}
+
+                <!-- Imagen si existe -->
+                {% if pregunta.imagen %}
+                    <div class="mb-8">
+                        <img src="{{ pregunta.imagen.url }}" 
+                             alt="{{ pregunta.titulo }}" 
+                             class="max-h-80 w-full rounded-lg object-cover shadow-md">
+                    </div>
+                {% endif %}
+
+                <!-- Opciones de Respuesta -->
+                <div class="space-y-3 my-8">
+                    <p class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Selecciona una opción:</p>
+                    
+                    {% for opcion in opciones %}
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg 
+                                   hover:border-primary hover:bg-blue-50 cursor-pointer transition-all 
+                                   opciones-radio" data-opcion-id="{{ opcion.id }}">
+                            <input 
+                                type="radio" 
+                                name="opcion_respuesta" 
+                                value="{{ opcion.id }}" 
+                                class="radio radio-primary mr-4"
+                                required
+                            >
+                            <span class="text-gray-800 font-medium flex-1">{{ opcion.contenido }}</span>
+                            
+                            {% if opcion.imagen %}
+                                <img src="{{ opcion.imagen.url }}" 
+                                     alt="Opción" 
+                                     class="w-12 h-12 rounded ml-4 object-cover">
+                            {% endif %}
+                        </label>
+                    {% endfor %}
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="card-actions justify-between mt-8 pt-6 border-t border-gray-200">
+                    <button onclick="cancelarPreguntas()" class="btn btn-ghost">
+                        Salir
+                    </button>
+                    <button onclick="enviarRespuesta()" class="btn btn-primary gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                        {% if indice_actual == total_preguntas %}
+                            Finalizar
+                        {% else %}
+                            Siguiente
+                        {% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Footer -->
+        <div class="mt-6 text-center text-gray-600 text-sm">
+            <p>Pregunta {{ indice_actual }} de {{ total_preguntas }}</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Configurar barra de progreso
+document.addEventListener('DOMContentLoaded', function() {
+    const indiceActual = {{ indice_actual }};
+    const totalPreguntas = {{ total_preguntas }};
+    const porcentaje = (indiceActual / totalPreguntas) * 100;
+    document.getElementById('progress-bar').style.width = porcentaje + '%';
+});
+
+function cancelarPreguntas() {
+    if (confirm('¿Salir de preguntas diarias? Se guardará el progreso.')) {
+        window.location.href = '/dashboard/estudiante/';
+    }
+}
+
+async function enviarRespuesta() {
+    // Obtener opción seleccionada
+    const opcionSeleccionada = document.querySelector('input[name="opcion_respuesta"]:checked');
+    
+    if (!opcionSeleccionada) {
+        alert('Por favor selecciona una opción');
+        return;
+    }
+    
+    const opcionId = opcionSeleccionada.value;
+    
+    try {
+        const response = await fetch('/preguntas-diarias/responder/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                opcion_id: parseInt(opcionId)
+            })
+        });
+        
+        const data = await response.json();
+
+        // Si la sesión expiró en el servidor (nuevo día), redirigir para re-iniciar
+        if (data.expired) {
+            window.location.href = data.redirect_url;
+            return;
+        }
+        
+        if (!response.ok) {
+            alert('Error: ' + data.error);
+            return;
+        }
+        
+        if (data.success) {
+            if (data.duplicate) {
+                // Already answered this question today, just go to next
+                window.location.href = data.redirect_url;
+                return;
+            }
+            // Mostrar retroalimentación visual
+            const label = document.querySelector(`[data-opcion-id="${opcionId}"]`);
+            if (data.es_correcta) {
+                label.classList.add('border-success', 'bg-success/10');
+            } else {
+                label.classList.add('border-error', 'bg-error/10');
+            }
+            
+            // Esperar un momento para que vea el resultado
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Si marcó como completado, ir a la página final
+            if (data.completed) {
+                window.location.href = data.redirect_url;
+                return;
+            }
+            // Redirigir a la siguiente pregunta (suele recargar para mostrar el siguiente item)
+            window.location.href = data.redirect_url;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al guardar la respuesta');
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

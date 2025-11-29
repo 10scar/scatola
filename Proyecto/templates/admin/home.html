@@ -1,0 +1,112 @@
+{% extends 'admin/dashboard_admin.html' %}
+
+{% block page_content %}
+<div class="p-6 max-w-7xl mx-auto">
+    <!-- Welcome Section -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">
+            ¡Bienvenido, {{ usuario.first_name|default:usuario.username }}!
+        </h1>
+        <p class="text-gray-600 mt-2">
+            Selecciona una opción para comenzar a administrar la plataforma.
+        </p>
+    </div>
+
+    <!-- Gestión Académica Section -->
+    <div class="mb-10">
+        <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Gestión Académica</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- Temas Card -->
+            <a href="{% url 'dashboard_admin:tema_list' %}" class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 group">
+                <div class="card-body">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="p-3 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="size-6">
+                                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="card-title text-gray-800">Temas</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm">Gestiona los temas y sus contenidos asociados.</p>
+                </div>
+            </a>
+
+            <!-- Temarios Card -->
+            <a href="{% url 'dashboard_admin:temario_index' %}" class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 group">
+                <div class="card-body">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="p-3 rounded-lg bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="size-6">
+                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                <path d="M10 12h4"></path>
+                                <path d="M10 16h4"></path>
+                            </svg>
+                        </div>
+                        <h2 class="card-title text-gray-800">Temarios</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm">Organiza los temarios y estructuras de estudio.</p>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Banco de Preguntas Section -->
+    <div>
+        <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Banco de Preguntas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Preguntas Card -->
+            <a href="{% url 'dashboard_admin:pregunta_list' %}" class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 group">
+                <div class="card-body">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="p-3 rounded-lg bg-green-50 text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="size-6">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <path d="M12 17h.01"></path>
+                            </svg>
+                        </div>
+                        <h2 class="card-title text-gray-800">Preguntas</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm">Administra el banco de preguntas del sistema.</p>
+                </div>
+            </a>
+
+            <!-- Grupos Card -->
+            <a href="{% url 'dashboard_admin:grupo_list' %}" class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 group">
+                <div class="card-body">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="p-3 rounded-lg bg-pink-50 text-pink-600 group-hover:bg-pink-600 group-hover:text-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="size-6">
+                                <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <h2 class="card-title text-gray-800">Grupos</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm">Gestiona los grupos de preguntas para organizar evaluaciones.</p>
+                </div>
+            </a>
+
+            <!-- Tipos de Pregunta Card -->
+            <a href="{% url 'dashboard_admin:tipo_pregunta_list' %}" class="card bg-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 group">
+                <div class="card-body">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="p-3 rounded-lg bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="size-6">
+                                <path d="M4 7h16"></path>
+                                <path d="M5 7v13a2 2 0 002 2h10a2 2 0 002-2V7"></path>
+                                <path d="M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"></path>
+                            </svg>
+                        </div>
+                        <h2 class="card-title text-gray-800">Tipos de Pregunta</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm">Configura los diferentes tipos de preguntas disponibles.</p>
+                </div>
+            </a>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

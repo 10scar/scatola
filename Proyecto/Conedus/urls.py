@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from usuarios import views
+from rutas import views as rutas_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,5 +37,7 @@ urlpatterns = [
     # Gestión de Temas y Contenidos (Admin)
     path('dashboard/admin/', include('preguntas.urls_admin')),
 
-    
+    # Preguntas Diarias
+    path('preguntas-diarias/', rutas_views.preguntas_diarias_view, name='preguntas_diarias'),
+    path('preguntas-diarias/responder/', rutas_views.guardar_respuesta_diaria, name='guardar_respuesta_diaria'),
 ]

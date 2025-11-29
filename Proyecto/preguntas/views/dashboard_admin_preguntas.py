@@ -305,6 +305,13 @@ class PreguntaCreateView(AdminRequiredMixin, CreateView):
     template_name = 'admin/preguntas/pregunta_form.html'
     success_url = reverse_lazy('dashboard_admin:pregunta_list')
     
+    def get_initial(self):
+        initial = super().get_initial()
+        contenido_id = self.request.GET.get('contenido')
+        if contenido_id:
+            initial['contenido'] = contenido_id
+        return initial
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:

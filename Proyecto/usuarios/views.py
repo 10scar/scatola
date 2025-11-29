@@ -205,7 +205,7 @@ def landing_view(request):
     return render(request, 'landing/landing.html')
 
 class DashboardAdminView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
-    template_name = 'admin/dashboard_admin.html'
+    template_name = 'admin/home.html'
     login_url = reverse_lazy('login')
 
     def test_func(self):

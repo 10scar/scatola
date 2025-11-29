@@ -4,7 +4,6 @@ from datetime import timedelta
 from django.utils import timezone
 from django.apps import apps
 
-
 class NivelFormacion(models.Model):
     nombre = models.CharField(max_length=45)
 

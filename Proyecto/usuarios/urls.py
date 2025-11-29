@@ -10,4 +10,5 @@ urlpatterns = [
     path('perfil/', views.profile_details, name='profile_details'),
     path('dashboard/', views.dashboard_estudiante, name='dashboard_estudiante'),
     path('perfil-actualizar/', views.editar_perfil, name='editar_perfil'),
+    path('Perfil-rutas/', views.editar_ruta_usuario, name='ver_rutas'),
 ]

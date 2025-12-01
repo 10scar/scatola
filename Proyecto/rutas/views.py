@@ -8,6 +8,8 @@ from .models import RespuestaDiaria
 import random
 import json
 from django.utils import timezone
+from django.contrib import messages
+from .models import Ruta, Leccion
 
 
 
@@ -120,4 +122,25 @@ def guardar_respuesta_diaria(request):
         return JsonResponse({'error': str(e)}, status=400)
 
 
-            
+@login_required
+def listar_lecciones(request):
+    """Lista las lecciones de la ruta del usuario actual."""
+    ruta = Ruta.objects.filter(usuario=request.user).first()
+
+    if not ruta:
+        messages.warning(request, "Primero debes configurar tu ruta de aprendizaje.")
+        return redirect('usuarios:ver_rutas')
+
+    lecciones = (
+        Leccion.objects
+        .filter(ruta=ruta)
+        .select_related('contenido')
+        .prefetch_related('preguntas')
+        .order_by('numero')
+    )
+
+    context = {
+        'ruta': ruta,
+        'lecciones': lecciones,
+    }
+    return render(request, 'rutas/listar_lecciones.html', context)

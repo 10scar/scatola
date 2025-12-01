@@ -41,4 +41,6 @@ urlpatterns = [
     # Preguntas Diarias
     path('preguntas-diarias/', rutas_views.preguntas_diarias_view, name='preguntas_diarias'),
     path('preguntas-diarias/responder/', rutas_views.guardar_respuesta_diaria, name='guardar_respuesta_diaria'),
+    # Lecciones de la ruta
+    path('rutas/lecciones/', rutas_views.listar_lecciones, name='listar_lecciones'),
 ]

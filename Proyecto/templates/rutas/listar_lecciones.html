@@ -1,0 +1,43 @@
+{% extends "dashboard/dashboard_estudiante.html" %}
+
+{% block title %}Mis lecciones{% endblock %}
+
+{% block page_content %}
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold">Mis lecciones</h1>
+      <a href="{% url 'usuarios:dashboard_estudiante' %}" class="btn btn-ghost btn-sm">
+        ← Volver al inicio
+      </a>
+    </div>
+
+    {% if lecciones %}
+      <div class="space-y-4">
+        {% for leccion in lecciones %}
+          <div class="card bg-white shadow">
+            <div class="card-body flex justify-between items-center">
+              <div>
+                <h2 class="font-semibold text-lg">
+                  Lección {{ leccion.numero }}
+                </h2>
+                <p class="text-sm text-gray-600">
+                  Contenido: {{ leccion.contenido.titulo }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  Preguntas: {{ leccion.preguntas.count }}
+                </p>
+              </div>
+              <!-- Aquí más adelante puedes agregar botón para “iniciar lección” -->
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-gray-600">
+        Aún no tienes lecciones generadas. Completa la prueba diagnóstica o configura tu ruta.
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

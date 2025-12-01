@@ -17,34 +17,54 @@ def poblar_datos():
     
     # Nota: El modelo Componente tiene un FK a TipoExamen.
     comp_math_icfes, _ = Componente.objects.get_or_create(
-        nombre="Matemáticas - ICFES Saber 11", tipo_examen=icfes_exam
+        nombre="Matemáticas - ICFES Saber 11", 
+        tipo_examen=icfes_exam,
+        defaults={'imagen': 'componentes_img/matematicas.png'}
     )
     comp_math_unal, _ = Componente.objects.get_or_create(
-        nombre="Matemáticas - Admisión UNAL", tipo_examen=unal_exam
+        nombre="Matemáticas - Admisión UNAL", 
+        tipo_examen=unal_exam,
+        defaults={'imagen': 'componentes_img/matematicas.png'}
     )
     comp_nat_icfes, _ = Componente.objects.get_or_create(
-        nombre="Ciencias Naturales - ICFES Saber 11", tipo_examen=icfes_exam
+        nombre="Ciencias Naturales - ICFES Saber 11", 
+        tipo_examen=icfes_exam,
+        defaults={'imagen': 'componentes_img/ciencias.png'}
     )
     comp_nat_unal, _ = Componente.objects.get_or_create(
-        nombre="Ciencias Naturales - Admisión UNAL", tipo_examen=unal_exam
+        nombre="Ciencias Naturales - Admisión UNAL", 
+        tipo_examen=unal_exam,
+        defaults={'imagen': 'componentes_img/ciencias.png'}
     )
     comp_lect_crit_icfes, _ = Componente.objects.get_or_create(
-        nombre="Lectura Crítica - ICFES Saber 11", tipo_examen=icfes_exam
+        nombre="Lectura Crítica - ICFES Saber 11", 
+        tipo_examen=icfes_exam,
+        defaults={'imagen': 'componentes_img/lectura.png'}
     )
     comp_an_text_unal, _ = Componente.objects.get_or_create(
-        nombre="Análisis Textual - Admisión UNAL", tipo_examen=unal_exam
+        nombre="Análisis Textual - Admisión UNAL", 
+        tipo_examen=unal_exam,
+        defaults={'imagen': 'componentes_img/lectura.png'}
     )
     comp_soc_icfes, _ = Componente.objects.get_or_create(
-        nombre="Sociales y Ciudadanas - ICFES Saber 11", tipo_examen=icfes_exam
+        nombre="Sociales y Ciudadanas - ICFES Saber 11", 
+        tipo_examen=icfes_exam,
+        defaults={'imagen': 'componentes_img/sociales.png'}
     )
     comp_soc_unal, _ = Componente.objects.get_or_create(
-        nombre="Ciencias Sociales - Admisión UNAL", tipo_examen=unal_exam
+        nombre="Ciencias Sociales - Admisión UNAL", 
+        tipo_examen=unal_exam,
+        defaults={'imagen': 'componentes_img/sociales.png'}
     )
     comp_ingles_icfes, _ = Componente.objects.get_or_create(
-        nombre="Inglés - ICFES Saber 11", tipo_examen=icfes_exam
+        nombre="Inglés - ICFES Saber 11", 
+        tipo_examen=icfes_exam,
+        defaults={'imagen': 'componentes_img/ingles.png'}
     )
     comp_an_img_unal, _ = Componente.objects.get_or_create(
-        nombre="Análisis de Imagen - Admisión UNAL", tipo_examen=unal_exam
+        nombre="Análisis de Imagen - Admisión UNAL", 
+        tipo_examen=unal_exam,
+        defaults={'imagen': 'componentes_img/imagenes.png'}
     )
     print("Componentes creados.")
 

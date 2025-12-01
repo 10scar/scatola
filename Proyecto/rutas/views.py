@@ -124,7 +124,7 @@ def guardar_respuesta_diaria(request):
 
 @login_required
 def listar_lecciones(request):
-    """Lista las lecciones de la ruta del usuario actual."""
+    """Lista las lecciones de la ruta del usuario actual, agrupadas por tema."""
     ruta = Ruta.objects.filter(usuario=request.user).first()
 
     if not ruta:
@@ -133,6 +133,8 @@ def listar_lecciones(request):
 
     actualizar_estados_lecciones(ruta)
 
+    # Obtenemos todas las lecciones ordenadas por número
+    # Asumimos que el orden 'numero' respeta el orden de los temas (lineal)
     lecciones = (
         Leccion.objects
         .filter(ruta=ruta)
@@ -141,9 +143,59 @@ def listar_lecciones(request):
         .order_by('numero')
     )
 
+    # Agrupar por Tema manualmente
+    temas_list = []
+    current_tema = None
+    current_group = None
+
+    for leccion in lecciones:
+        tema = leccion.contenido.tema
+        
+        # Si cambia el tema, guardamos el grupo anterior e iniciamos uno nuevo
+        if current_tema != tema:
+            if current_group:
+                temas_list.append(current_group)
+            
+            # Obtener el componente asociado al tema a través del Temario
+            from preguntas.models import Temario
+            temario = Temario.objects.filter(tema=tema).select_related('componente').first()
+            componente = temario.componente if temario else None
+            
+            current_tema = tema
+            current_group = {
+                'tema': tema,
+                'componente': componente,  # Agregamos el componente
+                'lecciones': [],
+                'estado_tema': 'bloqueado' # Se calculará abajo
+            }
+        
+        current_group['lecciones'].append(leccion)
+
+    # Añadir el último grupo
+    if current_group:
+        temas_list.append(current_group)
+
+    # Calcular estado visual de cada tema
+    for group in temas_list:
+        lecciones_grupo = group['lecciones']
+        if not lecciones_grupo:
+            continue
+            
+        # Completado: todas aprobadas o saltadas
+        all_done = all(l.estado in [Leccion.ESTADO_APROBADA, Leccion.ESTADO_SALTADA] for l in lecciones_grupo)
+        # Activo: al menos una no está bloqueada
+        any_active = any(l.estado != Leccion.ESTADO_BLOQUEADA for l in lecciones_grupo)
+        
+        if all_done:
+            group['estado_tema'] = 'completado'
+        elif any_active:
+            group['estado_tema'] = 'activo'
+        else:
+            group['estado_tema'] = 'bloqueado'
+
     context = {
         'ruta': ruta,
-        'lecciones': lecciones,
+        'temas_list': temas_list,
     }
     return render(request, 'rutas/listar_lecciones.html', context)
 

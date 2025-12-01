@@ -146,8 +146,16 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "assets"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Cloudflare R2 / S3 Storage
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# Media files (User uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Cloudflare R2 / S3 Storage (only in production)
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+else:
+    # Use local file storage in development
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 AWS_ACCESS_KEY_ID = os.environ.get('R2_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('R2_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('R2_BUCKET_NAME')

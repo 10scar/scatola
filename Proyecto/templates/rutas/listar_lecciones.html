@@ -25,17 +25,20 @@
       <div class="space-y-4">
         {% for leccion in lecciones %}
           <div class="card bg-white shadow">
-            <div class="card-body flex justify-between items-center">
-              <div>
-                <h2 class="font-semibold text-lg">
-                  Lección {{ leccion.numero }}
-                </h2>
-                <p class="text-sm text-gray-600">
-                  Contenido: {{ leccion.contenido.titulo }}
-                </p>
-                <p class="text-xs text-gray-500">
-                  Preguntas: {{ leccion.preguntas.count }}
-                </p>
+            <div class="card-body">
+              <div class="flex justify-between items-center">
+                <div>
+                  <h2 class="font-semibold text-xl lg:text-2xl">
+                    Lección {{ leccion.numero }}
+                  </h2>
+                  <p class="text-base text-gray-700">
+                    Contenido: {{ leccion.contenido.titulo }}
+                  </p>
+                  <p class="text-sm text-gray-500">
+                    Preguntas: {{ leccion.preguntas.count }}
+                  </p>
+                </div>
+                <!-- Aquí más adelante pondremos el recuadro de estado -->
               </div>
             </div>
           </div>

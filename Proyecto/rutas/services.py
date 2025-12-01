@@ -61,6 +61,10 @@ def sincronizar_lecciones(ruta_id):
     for contenido_id, leccion in lecciones_actuales.items():
         if contenido_id not in contenidos_ids:
             leccion.delete()
+
+    # NUEVO: asegurar una sola lección vigente y las demás bloqueadas
+    actualizar_estados_lecciones(ruta)
+
     return True
 
 @transaction.atomic
@@ -132,3 +136,32 @@ def generar_lecciones_desde_diagnostica(usuario, prueba_diagnostica):
     sincronizar_lecciones(ruta.id)
     
     return ruta
+
+def actualizar_estados_lecciones(ruta: Ruta):
+    """
+    Garantiza que para una ruta haya solo una lección vigente.
+    - Lecciones 'aprobada' o 'saltada' se mantienen así.
+    - Una sola lección queda 'vigente'.
+    - Las posteriores a la vigente quedan 'bloqueada'.
+    """
+    lecciones = list(
+        Leccion.objects.filter(ruta=ruta).order_by('numero')
+    )
+
+    if not lecciones:
+        return
+
+    # Buscar primera lección que no esté aprobada ni saltada
+    vigente_asignada = False
+    for leccion in lecciones:
+        if leccion.estado in [Leccion.ESTADO_APROBADA, Leccion.ESTADO_SALTADA]:
+            continue
+
+        if not vigente_asignada:
+            leccion.estado = Leccion.ESTADO_VIGENTE
+            vigente_asignada = True
+        else:
+            leccion.estado = Leccion.ESTADO_BLOQUEADA
+
+    # Si ninguna quedó vigente (todas aprobadas/saltadas), no forzamos nada más.
+    Leccion.objects.bulk_update(lecciones, ['estado'])

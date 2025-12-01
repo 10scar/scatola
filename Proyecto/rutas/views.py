@@ -134,7 +134,7 @@ def listar_lecciones(request):
     lecciones = (
         Leccion.objects
         .filter(ruta=ruta)
-        .select_related('contenido')
+        .select_related('contenido', 'contenido__tema')
         .prefetch_related('preguntas')
         .order_by('numero')
     )

@@ -6,10 +6,19 @@
 <div class="min-h-screen bg-gray-50 py-8">
   <div class="max-w-4xl mx-auto">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-3xl font-bold">Mis lecciones</h1>
-      <a href="{% url 'usuarios:dashboard_estudiante' %}" class="btn btn-ghost btn-sm">
-        ← Volver al inicio
-      </a>
+      <h1 class="text-3xl font-bold">Mi ruta de aprendizaje</h1>
+      <div class="flex gap-3 w-full max-w-md justify-end">
+        <!-- Atrás (azul, estilo Guardar) -->
+        <a href="{% url 'usuarios:dashboard_estudiante' %}"
+           class="flex-1 text-center py-2 rounded-lg bg-blue-600 text-white">
+          Atrás
+        </a>
+        <!-- Modificar ruta (blanco, estilo Atrás en modificar_rutas) -->
+        <a href="{% url 'usuarios:ver_rutas' %}"
+           class="flex-1 text-center py-2 rounded-lg border text-gray-700 bg-white">
+          Modificar ruta
+        </a>
+      </div>
     </div>
 
     {% if lecciones %}
@@ -28,7 +37,6 @@
                   Preguntas: {{ leccion.preguntas.count }}
                 </p>
               </div>
-              <!-- Aquí más adelante puedes agregar botón para “iniciar lección” -->
             </div>
           </div>
         {% endfor %}

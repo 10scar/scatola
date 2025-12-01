@@ -3326,6 +3326,13 @@
     }
   }
   @layer daisyui.modifier {
+    .alert-success {
+      color: var(--color-success-content);
+      --alert-border-color: var(--color-success);
+      --alert-color: var(--color-success);
+    }
+  }
+  @layer daisyui.modifier {
     .alert-warning {
       color: var(--color-warning-content);
       --alert-border-color: var(--color-warning);
@@ -3449,6 +3456,9 @@
   }
   .text-green-800 {
     color: var(--color-green-800);
+  }
+  .text-info {
+    color: var(--color-info);
   }
   .text-muted-foreground {
     color: var(--color-muted-foreground);

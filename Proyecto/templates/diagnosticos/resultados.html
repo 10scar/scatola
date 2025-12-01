@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Resultados de la Prueba Diagnóstica{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 flex items-center justify-center">
+    <div class="max-w-2xl w-full">
+        <div class="card bg-white shadow-2xl">
+            <div class="card-body p-8 text-center">
+                <div class="mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-success mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">¡Prueba Completada!</h1>
+                
+                <div class="stats shadow mb-8">
+                    <div class="stat">
+                        <div class="stat-title">Preguntas</div>
+                        <div class="stat-value text-primary">{{ total_respuestas }}</div>
+                        <div class="stat-desc">Total respondidas</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Correctas</div>
+                        <div class="stat-value text-success">{{ respuestas_correctas }}</div>
+                        <div class="stat-desc">{{ porcentaje }}% de aciertos</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Puntaje</div>
+                        <div class="stat-value text-info">{{ prueba.puntaje_total }}</div>
+                        <div class="stat-desc">Puntos obtenidos</div>
+                    </div>
+                </div>
+                
+                {% if ruta_generada %}
+                    <div class="alert alert-success mb-6">
+                        <p class="font-semibold">¡Tu ruta de aprendizaje ha sido generada!</p>
+                        <p>Basándonos en tus resultados, hemos creado lecciones personalizadas para ti.</p>
+                    </div>
+                {% endif %}
+                
+                <div class="card-actions justify-center">
+                    <a href="{% url 'dashboard_estudiante' %}" class="btn btn-primary btn-lg">
+                        Ver Mi Ruta de Aprendizaje
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

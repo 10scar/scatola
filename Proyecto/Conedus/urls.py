@@ -33,7 +33,8 @@ urlpatterns = [
     # Dashboard
     path('dashboard/estudiante/', views.dashboard_estudiante, name='dashboard_estudiante'),
     path('dashboard/admin/', views.DashboardAdminView.as_view(), name='dashboard_admin'),
-    
+    # Prueba Diagnóstica
+    path('diagnosticos/', include('diagnosticos.urls', namespace='diagnosticos')),
     # Gestión de Temas y Contenidos (Admin)
     path('dashboard/admin/', include('preguntas.urls_admin')),
 

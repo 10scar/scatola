@@ -148,22 +148,96 @@ def listar_lecciones(request):
 
 @login_required
 def ver_leccion(request, leccion_id):
-    """Muestra una lección específica, validando estado y pertenencia al usuario."""
+    """Muestra una lección específica y permite evaluarla o saltarla."""
     leccion = get_object_or_404(
         Leccion.objects.select_related('ruta', 'contenido').prefetch_related('preguntas__opciones'),
         id=leccion_id,
         ruta__usuario=request.user
     )
 
-    estado = leccion.estado
-    if estado == Leccion.ESTADO_BLOQUEADA:
-        messages.warning(request, "Esta lección está bloqueada. Completa las anteriores para desbloquearla.")
-        return redirect('listar_lecciones')
+    # Recalcular estados por si cambió algo en la ruta
+    actualizar_estados_lecciones(leccion.ruta)
+    leccion.refresh_from_db()
 
-    # Más adelante aquí se manejará la lógica de responder preguntas.
+    if leccion.estado == Leccion.ESTADO_BLOQUEADA:
+        messages.warning(request, "Esta lección está bloqueada. Completa las anteriores para desbloquearla.")
+        return redirect('rutas:listar_lecciones')
+
+    preguntas = list(leccion.preguntas.all())
+    total_preguntas = len(preguntas)
+
+    if request.method == "POST" and leccion.estado == Leccion.ESTADO_VIGENTE:
+        accion = request.POST.get("accion")
+
+        # 1) Saltar lección
+        if accion == "saltar":
+            leccion.estado = Leccion.ESTADO_SALTADA
+            leccion.save()
+            actualizar_estados_lecciones(leccion.ruta)
+            messages.info(request, "Has saltado esta lección. Se desbloqueó la siguiente disponible.")
+            return redirect('rutas:listar_lecciones')
+
+        # 2) Evaluar lección
+        if accion == "evaluar":
+            # Si hay menos de 2 preguntas, no vale la pena evaluar
+            if total_preguntas < 2:
+                messages.warning(
+                    request,
+                    "Esta lección aún no tiene suficientes preguntas para ser evaluada. Inténtalo más tarde."
+                )
+                return redirect('rutas:listar_lecciones')
+
+            respuestas_correctas = 0
+            respondidas = 0
+
+            for pregunta in preguntas:
+                campo = f"opcion_{pregunta.id}"
+                opcion_id = request.POST.get(campo)
+                if not opcion_id:
+                    # No respondió esta pregunta → cuenta como incorrecta
+                    continue
+
+                respondidas += 1
+                try:
+                    opcion = pregunta.opciones.get(id=opcion_id)
+                except Opcion.DoesNotExist:
+                    continue
+
+                if (opcion.puntaje or 0) > 0:
+                    respuestas_correctas += 1
+
+            if respondidas == 0:
+                messages.warning(request, "No respondiste ninguna pregunta. Inténtalo nuevamente.")
+                return redirect('rutas:ver_leccion', leccion_id=leccion.id)
+
+            porcentaje = (respuestas_correctas / total_preguntas) * 100
+
+            if porcentaje >= 50:
+                leccion.estado = Leccion.ESTADO_APROBADA
+                leccion.puntaje = int(porcentaje)
+                leccion.save()
+                actualizar_estados_lecciones(leccion.ruta)
+                messages.success(
+                    request,
+                    f"¡Felicitaciones! Aprobaste la lección con {respuestas_correctas} "
+                    f"de {total_preguntas} preguntas correctas ({porcentaje:.0f}%)."
+                )
+            else:
+                # No cambia el estado; puede reintentar
+                leccion.puntaje = int(porcentaje)
+                leccion.save()
+                messages.error(
+                    request,
+                    f"No alcanzaste el 50%. Obtuviste {respuestas_correctas} de "
+                    f"{total_preguntas} preguntas correctas ({porcentaje:.0f}%). "
+                    "Puedes volver a intentarlo cuando quieras."
+                )
+
+            return redirect('rutas:ver_leccion', leccion_id=leccion.id)
+
     context = {
         'leccion': leccion,
-        'preguntas': leccion.preguntas.all(),
-        'estado': estado,
+        'preguntas': preguntas,
+        'estado': leccion.estado,
     }
     return render(request, 'rutas/leccion_detalle.html', context)

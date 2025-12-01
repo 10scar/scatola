@@ -41,19 +41,19 @@
                   
                     <div class="text-right">
                       {% if leccion.estado == leccion.ESTADO_VIGENTE %}
-                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-primary btn-sm">
+                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-primary">
                           Continuar
                         </a>
                       {% elif leccion.estado == leccion.ESTADO_APROBADA %}
-                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-success btn-sm">
+                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-success">
                           Revisar
                         </a>
                       {% elif leccion.estado == leccion.ESTADO_SALTADA %}
-                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-outline btn-sm">
+                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-error">
                           Revisar
                         </a>
                       {% else %}
-                        <button class="btn btn-disabled btn-sm" disabled>
+                        <button class="btn btn-disabled" disabled>
                           Bloqueada
                         </button>
                       {% endif %}

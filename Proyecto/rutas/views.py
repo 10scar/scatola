@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -166,6 +167,17 @@ def ver_leccion(request, leccion_id):
     preguntas = list(leccion.preguntas.all())
     total_preguntas = len(preguntas)
 
+    # Saber si el formulario debe mostrarse bloqueado (después de reprobar)
+    bloqueado = request.GET.get("bloqueado") == "1"
+
+    # Calcular la siguiente lección de la ruta, si existe
+    siguiente_leccion = (
+        Leccion.objects
+        .filter(ruta=leccion.ruta, numero__gt=leccion.numero)
+        .order_by("numero")
+        .first()
+    )
+
     if request.method == "POST" and leccion.estado == Leccion.ESTADO_VIGENTE:
         accion = request.POST.get("accion")
 
@@ -174,7 +186,22 @@ def ver_leccion(request, leccion_id):
             leccion.estado = Leccion.ESTADO_SALTADA
             leccion.save()
             actualizar_estados_lecciones(leccion.ruta)
-            messages.info(request, "Has saltado esta lección. Se desbloqueó la siguiente disponible.")
+            messages.info(
+                request,
+                f"Has saltado la lección {leccion.numero}. "
+                "Podrás volver a acceder a ella más adelante desde tu ruta de aprendizaje."
+            )
+
+            # Redirigir directamente a la siguiente lección vigente, si existe
+            leccion_siguiente_vigente = (
+                Leccion.objects
+                .filter(ruta=leccion.ruta, estado=Leccion.ESTADO_VIGENTE)
+                .order_by("numero")
+                .first()
+            )
+            if leccion_siguiente_vigente:
+                return redirect('rutas:ver_leccion', leccion_id=leccion_siguiente_vigente.id)
+
             return redirect('rutas:listar_lecciones')
 
         # 2) Evaluar lección
@@ -223,7 +250,7 @@ def ver_leccion(request, leccion_id):
                     f"de {total_preguntas} preguntas correctas ({porcentaje:.0f}%)."
                 )
             else:
-                # No cambia el estado; puede reintentar
+                # No cambia el estado; puede reintentar, pero bloqueamos el formulario
                 leccion.puntaje = int(porcentaje)
                 leccion.save()
                 messages.error(
@@ -233,11 +260,17 @@ def ver_leccion(request, leccion_id):
                     "Puedes volver a intentarlo cuando quieras."
                 )
 
+                # Redirigir con bandera de formulario bloqueado
+                url = reverse('rutas:ver_leccion', args=[leccion.id])
+                return redirect(f"{url}?bloqueado=1")
+
             return redirect('rutas:ver_leccion', leccion_id=leccion.id)
 
     context = {
         'leccion': leccion,
         'preguntas': preguntas,
         'estado': leccion.estado,
+        'bloqueado': bloqueado,
+        'siguiente_leccion': siguiente_leccion,
     }
     return render(request, 'rutas/leccion_detalle.html', context)

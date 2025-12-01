@@ -1,0 +1,48 @@
+{% extends "dashboard/dashboard_estudiante.html" %}
+
+{% block title %}Lección {{ leccion.numero }}{% endblock %}
+
+{% block page_content %}
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h1 class="text-3xl font-bold">Lección {{ leccion.numero }}</h1>
+        <p class="text-gray-600">{{ leccion.contenido.titulo }}</p>
+        <span class="badge badge-lg 
+          {% if estado == leccion.ESTADO_VIGENTE %}badge-info{% elif estado == leccion.ESTADO_APROBADA %}badge-success{% elif estado == leccion.ESTADO_SALTADA %}badge-warning{% else %}badge-ghost{% endif %}">
+          {{ leccion.get_estado_display }}
+        </span>
+      </div>
+      <a href="{% url 'rutas:listar_lecciones' %}" class="btn">Volver</a>
+    </div>
+
+    {% if estado == leccion.ESTADO_BLOQUEADA %}
+      <div class="alert alert-warning">
+        Debes completar las lecciones anteriores antes de acceder a esta.
+      </div>
+    {% else %}
+      <div class="space-y-6">
+        {% for pregunta in preguntas %}
+          <div class="border rounded-lg p-4">
+            <h3 class="font-semibold mb-2">{{ pregunta.titulo }}</h3>
+            <p class="text-sm text-gray-600 mb-3">{{ pregunta.descripcion }}</p>
+            <ul class="space-y-2">
+              {% for opcion in pregunta.opciones.all %}
+                <li class="p-2 border rounded">{{ opcion.contenido }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if estado == leccion.ESTADO_VIGENTE %}
+        <div class="mt-6 flex gap-3">
+          <button class="btn btn-primary">Responder (placeholder)</button>
+          <button class="btn btn-outline">Marcar como aprobada (placeholder)</button>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

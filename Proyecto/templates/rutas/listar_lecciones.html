@@ -26,20 +26,39 @@
         {% for leccion in lecciones %}
           <div class="card bg-white shadow">
             <div class="card-body">
-              <div class="flex justify-between items-center">
-                <div>
-                  <h2 class="font-semibold text-xl lg:text-2xl">
-                    Lección {{ leccion.numero }}
-                  </h2>
-                  <p class="text-base text-gray-700">
-                    Contenido: {{ leccion.contenido.titulo }}
-                  </p>
-                  <p class="text-sm text-gray-500">
-                    Preguntas: {{ leccion.preguntas.count }}
-                  </p>
-                </div>
-                <!-- Aquí más adelante pondremos el recuadro de estado -->
-              </div>
+                <div class="flex justify-between items-center">
+                    <div>
+                      <h2 class="font-semibold text-xl lg:text-2xl">
+                        Lección {{ leccion.numero }}
+                      </h2>
+                      <p class="text-base text-gray-700">
+                        Contenido: {{ leccion.contenido.titulo }}
+                      </p>
+                      <p class="text-sm text-gray-500">
+                        Preguntas: {{ leccion.preguntas.count }}
+                      </p>
+                    </div>
+                  
+                    <div class="text-right">
+                      {% if leccion.estado == leccion.ESTADO_VIGENTE %}
+                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-primary btn-sm">
+                          Continuar
+                        </a>
+                      {% elif leccion.estado == leccion.ESTADO_APROBADA %}
+                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-success btn-sm">
+                          Revisar
+                        </a>
+                      {% elif leccion.estado == leccion.ESTADO_SALTADA %}
+                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-outline btn-sm">
+                          Revisar
+                        </a>
+                      {% else %}
+                        <button class="btn btn-disabled btn-sm" disabled>
+                          Bloqueada
+                        </button>
+                      {% endif %}
+                    </div>
+                  </div>
             </div>
           </div>
         {% endfor %}

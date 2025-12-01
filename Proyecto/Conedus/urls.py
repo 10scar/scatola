@@ -43,4 +43,5 @@ urlpatterns = [
     path('preguntas-diarias/responder/', rutas_views.guardar_respuesta_diaria, name='guardar_respuesta_diaria'),
     # Lecciones de la ruta
     path('rutas/lecciones/', rutas_views.listar_lecciones, name='listar_lecciones'),
+    path('rutas/', include(('rutas.urls', 'rutas'), namespace='rutas')),
 ]

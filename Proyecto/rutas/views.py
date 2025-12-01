@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -10,8 +10,7 @@ import json
 from django.utils import timezone
 from django.contrib import messages
 from .models import Ruta, Leccion
-
-
+from .services import sincronizar_lecciones, actualizar_estados_lecciones   
 
 
 @login_required
@@ -131,6 +130,8 @@ def listar_lecciones(request):
         messages.warning(request, "Primero debes configurar tu ruta de aprendizaje.")
         return redirect('usuarios:ver_rutas')
 
+    actualizar_estados_lecciones(ruta)
+
     lecciones = (
         Leccion.objects
         .filter(ruta=ruta)
@@ -144,3 +145,25 @@ def listar_lecciones(request):
         'lecciones': lecciones,
     }
     return render(request, 'rutas/listar_lecciones.html', context)
+
+@login_required
+def ver_leccion(request, leccion_id):
+    """Muestra una lección específica, validando estado y pertenencia al usuario."""
+    leccion = get_object_or_404(
+        Leccion.objects.select_related('ruta', 'contenido').prefetch_related('preguntas__opciones'),
+        id=leccion_id,
+        ruta__usuario=request.user
+    )
+
+    estado = leccion.estado
+    if estado == Leccion.ESTADO_BLOQUEADA:
+        messages.warning(request, "Esta lección está bloqueada. Completa las anteriores para desbloquearla.")
+        return redirect('listar_lecciones')
+
+    # Más adelante aquí se manejará la lógica de responder preguntas.
+    context = {
+        'leccion': leccion,
+        'preguntas': leccion.preguntas.all(),
+        'estado': estado,
+    }
+    return render(request, 'rutas/leccion_detalle.html', context)

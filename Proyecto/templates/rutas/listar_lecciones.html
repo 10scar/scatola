@@ -57,36 +57,48 @@
     /* Connector line */
     .path-connector {
         position: absolute;
-        top: 40px; /* Start from center of button */
-        left: 50%;
-        width: 6px; /* Thicker line */
-        height: 160px; /* Reach the next node (approx space-y-32) */
-        background-color: #e5e7eb;
-        transform: translateX(-50%);
+        top: 45px; /* Start from center of button */
+        width: 80px;
+        height: 180px; /* Reach the next node */
         z-index: -1; /* Behind buttons */
-        transform-origin: top center;
+        pointer-events: none;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
     }
     
-    /* Rotate connectors for zigzag */
-    /* From Center to Left */
-    .lesson-node:nth-child(4n+1) .path-connector {
-        transform: translateX(-50%) rotate(25deg);
-        height: 180px;
-    }
-    /* From Left to Center */
-    .lesson-node:nth-child(4n+2) .path-connector {
-        transform: translateX(-50%) rotate(-25deg);
-        height: 180px;
-    }
-    /* From Center to Right */
-    .lesson-node:nth-child(4n+3) .path-connector {
-        transform: translateX(-50%) rotate(-25deg);
-        height: 180px;
-    }
-    /* From Right to Center */
+    /* 1. Center to Left (1->2) & 4. Right to Center (4->5) */
+    /* Curve: Starts Top-Right, Ends Bottom-Left */
+    .lesson-node:nth-child(4n+1) .path-connector,
     .lesson-node:nth-child(4n) .path-connector {
-        transform: translateX(-50%) rotate(25deg);
-        height: 180px;
+        left: 50%;
+        transform: translateX(-100%);
+        background-image: url("data:image/svg+xml,%3Csvg width='80' height='180' viewBox='0 0 80 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 78 0 Q 78 90 2 180' fill='none' stroke='%23cbd5e1' stroke-width='6' stroke-dasharray='0 12' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+
+    /* 2. Left to Center (2->3) & 3. Center to Right (3->4) */
+    /* Curve: Starts Top-Left, Ends Bottom-Right */
+    .lesson-node:nth-child(4n+2) .path-connector,
+    .lesson-node:nth-child(4n+3) .path-connector {
+        left: 50%;
+        transform: translateX(0);
+        background-image: url("data:image/svg+xml,%3Csvg width='80' height='180' viewBox='0 0 80 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 2 0 Q 2 90 78 180' fill='none' stroke='%23cbd5e1' stroke-width='6' stroke-dasharray='0 12' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+
+    /* Mobile adjustment: narrower curves */
+    @media (max-width: 640px) {
+        .path-connector {
+            width: 40px;
+        }
+
+        .lesson-node:nth-child(4n+1) .path-connector,
+        .lesson-node:nth-child(4n) .path-connector {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='180' viewBox='0 0 40 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 38 0 Q 38 90 2 180' fill='none' stroke='%23cbd5e1' stroke-width='6' stroke-dasharray='0 12' stroke-linecap='round'/%3E%3C/svg%3E");
+        }
+
+        .lesson-node:nth-child(4n+2) .path-connector,
+        .lesson-node:nth-child(4n+3) .path-connector {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='180' viewBox='0 0 40 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 2 0 Q 2 90 38 180' fill='none' stroke='%23cbd5e1' stroke-width='6' stroke-dasharray='0 12' stroke-linecap='round'/%3E%3C/svg%3E");
+        }
     }
 
     /* Hide connector for last item */

@@ -1,0 +1,73 @@
+{% extends "dashboard/dashboard_estudiante.html" %}
+
+{% block title %}Mis lecciones{% endblock %}
+
+{% block page_content %}
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold">Mi ruta de aprendizaje</h1>
+      <div class="flex gap-3 w-full max-w-md justify-end">
+        <!-- Atrás (azul, estilo Guardar) -->
+        <a href="{% url 'usuarios:dashboard_estudiante' %}"
+           class="flex-1 text-center py-2 rounded-lg bg-blue-600 text-white">
+          Atrás
+        </a>
+        <!-- Modificar ruta (blanco, estilo Atrás en modificar_rutas) -->
+        <a href="{% url 'usuarios:ver_rutas' %}"
+           class="flex-1 text-center py-2 rounded-lg border text-gray-700 bg-white">
+          Modificar ruta
+        </a>
+      </div>
+    </div>
+
+    {% if lecciones %}
+      <div class="space-y-4">
+        {% for leccion in lecciones %}
+          <div class="card bg-white shadow">
+            <div class="card-body">
+                <div class="flex justify-between items-center">
+                    <div>
+                      <h2 class="font-semibold text-xl lg:text-2xl">
+                        Lección {{ leccion.numero }}
+                      </h2>
+                      <p class="text-base text-gray-700">
+                        Contenido: {{ leccion.contenido.titulo }}
+                      </p>
+                      <p class="text-sm text-gray-500">
+                        Preguntas: {{ leccion.preguntas.count }}
+                      </p>
+                    </div>
+                  
+                    <div class="text-right">
+                      {% if leccion.estado == leccion.ESTADO_VIGENTE %}
+                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-primary">
+                          Continuar
+                        </a>
+                      {% elif leccion.estado == leccion.ESTADO_APROBADA %}
+                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-success">
+                          Revisar
+                        </a>
+                      {% elif leccion.estado == leccion.ESTADO_SALTADA %}
+                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-error">
+                          Revisar
+                        </a>
+                      {% else %}
+                        <button class="btn btn-disabled" disabled>
+                          Bloqueada
+                        </button>
+                      {% endif %}
+                    </div>
+                  </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-gray-600">
+        Aún no tienes lecciones generadas. Completa la prueba diagnóstica o configura tu ruta.
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

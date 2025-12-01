@@ -41,6 +41,11 @@ class Contenido(models.Model):
     tema = models.ForeignKey(Tema, related_name='contenidos', on_delete=models.CASCADE)
     titulo = models.CharField(max_length=150)
     descripcion = models.TextField(help_text="Contenido explicativo detallado.")
+    explicacion = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Explicación pedagógica que verá el estudiante antes de responder las preguntas."
+    )
     icono = models.CharField(max_length=50, null=True, blank=True)
     padre_id = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='hijos')
 

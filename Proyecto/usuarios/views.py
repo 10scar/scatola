@@ -98,7 +98,8 @@ def editar_ruta_usuario(request):
             form.save_m2m()
             sincronizar_lecciones(ruta.id)
             messages.success(request, "Ruta y componentes guardados correctamente.")
-            return redirect("usuarios:ver_rutas") 
+            # Redirigir a la página de pregunta sobre prueba diagnóstica
+            return redirect("usuarios:preguntar_prueba_diagnostica")
         else:
             messages.error(request, "Corrige los errores del formulario.")
     else:
@@ -220,6 +221,36 @@ class DashboardAdminView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         context['usuario'] = self.request.user
         return context
 
+
+@login_required
+def preguntar_prueba_diagnostica(request):
+    """Página intermedia que pregunta si el usuario desea realizar la prueba diagnóstica"""
+    ruta = get_object_or_404(Ruta, usuario=request.user)
+    
+    # Verificar que tenga componentes seleccionados
+    if not ruta.componentes.exists():
+        messages.warning(request, "Primero debes seleccionar tus componentes de estudio.")
+        return redirect("usuarios:ver_rutas")
+    
+    if request.method == "POST":
+        realizar_prueba = request.POST.get('realizar_prueba') == 'si'
+        
+        if realizar_prueba:
+            # Redirigir a la prueba diagnóstica
+            return redirect('diagnosticos:iniciar')
+        else:
+            # Generar ruta sin prueba diagnóstica (con todos los temas)
+            from rutas.services import generar_ruta_sin_diagnostica
+            generar_ruta_sin_diagnostica(request.user, ruta)
+            messages.success(request, "¡Tu ruta de aprendizaje ha sido creada! Puedes comenzar con tus lecciones.")
+            return redirect('dashboard_estudiante')
+    
+    context = {
+        'ruta': ruta,
+        'componentes': ruta.componentes.all(),
+    }
+    
+    return render(request, 'usuarios/preguntar_prueba_diagnostica.html', context)
 
 # ============================================
 # MIXIN PARA VERIFICAR PERMISOS DE ADMINISTRADOR

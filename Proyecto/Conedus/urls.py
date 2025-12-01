@@ -33,11 +33,15 @@ urlpatterns = [
     # Dashboard
     path('dashboard/estudiante/', views.dashboard_estudiante, name='dashboard_estudiante'),
     path('dashboard/admin/', views.DashboardAdminView.as_view(), name='dashboard_admin'),
-    
+    # Prueba Diagnóstica
+    path('diagnosticos/', include('diagnosticos.urls', namespace='diagnosticos')),
     # Gestión de Temas y Contenidos (Admin)
     path('dashboard/admin/', include('preguntas.urls_admin')),
 
     # Preguntas Diarias
     path('preguntas-diarias/', rutas_views.preguntas_diarias_view, name='preguntas_diarias'),
     path('preguntas-diarias/responder/', rutas_views.guardar_respuesta_diaria, name='guardar_respuesta_diaria'),
+    # Lecciones de la ruta
+    path('rutas/lecciones/', rutas_views.listar_lecciones, name='listar_lecciones'),
+    path('rutas/', include(('rutas.urls', 'rutas'), namespace='rutas')),
 ]

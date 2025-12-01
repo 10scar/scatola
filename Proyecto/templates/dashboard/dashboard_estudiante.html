@@ -2,15 +2,31 @@
 
 {% block content %}
 {% if messages %}
-<div class="space-y-2 mb-4">
+<div id="flash-messages" class="space-y-2 mb-4">
     {% for message in messages %}
-        <div class="p-4 rounded-lg 
+        <div class="p-4 rounded-lg
                     {% if message.tags == 'success' %}bg-green-100 text-green-700
-                    {% endif %}">
+                    {% elif message.tags == 'error' %}bg-red-100 text-red-700
+                    {% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-blue-100 text-blue-800{% endif %}">
             {{ message }}
         </div>
     {% endfor %}
 </div>
+
+<script>
+  // Ocultar mensajes flash después de 5 segundos
+  setTimeout(function() {
+    const container = document.getElementById('flash-messages');
+    if (container) {
+      container.style.transition = 'opacity 0.5s ease';
+      container.style.opacity = '0';
+      setTimeout(function () {
+        container.remove();
+      }, 500);
+    }
+  }, 5000);
+</script>
 {% endif %}
 <div class="min-h-screen bg-gray-50">
     <div class="drawer drawer-open">

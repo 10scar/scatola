@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -8,8 +9,9 @@ from .models import RespuestaDiaria
 import random
 import json
 from django.utils import timezone
-
-
+from django.contrib import messages
+from .models import Ruta, Leccion
+from .services import sincronizar_lecciones, actualizar_estados_lecciones   
 
 
 @login_required
@@ -120,4 +122,155 @@ def guardar_respuesta_diaria(request):
         return JsonResponse({'error': str(e)}, status=400)
 
 
-            
+@login_required
+def listar_lecciones(request):
+    """Lista las lecciones de la ruta del usuario actual."""
+    ruta = Ruta.objects.filter(usuario=request.user).first()
+
+    if not ruta:
+        messages.warning(request, "Primero debes configurar tu ruta de aprendizaje.")
+        return redirect('usuarios:ver_rutas')
+
+    actualizar_estados_lecciones(ruta)
+
+    lecciones = (
+        Leccion.objects
+        .filter(ruta=ruta)
+        .select_related('contenido', 'contenido__tema')
+        .prefetch_related('preguntas')
+        .order_by('numero')
+    )
+
+    context = {
+        'ruta': ruta,
+        'lecciones': lecciones,
+    }
+    return render(request, 'rutas/listar_lecciones.html', context)
+
+@login_required
+def ver_leccion(request, leccion_id):
+    """Muestra una lección específica y permite evaluarla o saltarla."""
+    leccion = get_object_or_404(
+        Leccion.objects.select_related('ruta', 'contenido').prefetch_related('preguntas__opciones'),
+        id=leccion_id,
+        ruta__usuario=request.user
+    )
+
+    # Recalcular estados por si cambió algo en la ruta
+    actualizar_estados_lecciones(leccion.ruta)
+    leccion.refresh_from_db()
+
+    if leccion.estado == Leccion.ESTADO_BLOQUEADA:
+        messages.warning(request, "Esta lección está bloqueada. Completa las anteriores para desbloquearla.")
+        return redirect('rutas:listar_lecciones')
+
+    preguntas = list(leccion.preguntas.all())
+    total_preguntas = len(preguntas)
+
+    # Saber si el formulario debe mostrarse bloqueado (después de reprobar)
+    bloqueado = request.GET.get("bloqueado") == "1"
+
+    # Calcular la siguiente lección de la ruta, si existe
+    siguiente_leccion = (
+        Leccion.objects
+        .filter(ruta=leccion.ruta, numero__gt=leccion.numero)
+        .order_by("numero")
+        .first()
+    )
+
+    if request.method == "POST" and leccion.estado == Leccion.ESTADO_VIGENTE:
+        accion = request.POST.get("accion")
+
+        # 1) Saltar lección
+        if accion == "saltar":
+            leccion.estado = Leccion.ESTADO_SALTADA
+            leccion.save()
+            actualizar_estados_lecciones(leccion.ruta)
+            messages.info(
+                request,
+                f"Has saltado la lección {leccion.numero}. "
+                "Podrás volver a acceder a ella más adelante desde tu ruta de aprendizaje."
+            )
+
+            # Redirigir directamente a la siguiente lección vigente, si existe
+            leccion_siguiente_vigente = (
+                Leccion.objects
+                .filter(ruta=leccion.ruta, estado=Leccion.ESTADO_VIGENTE)
+                .order_by("numero")
+                .first()
+            )
+            if leccion_siguiente_vigente:
+                return redirect('rutas:ver_leccion', leccion_id=leccion_siguiente_vigente.id)
+
+            return redirect('rutas:listar_lecciones')
+
+        # 2) Evaluar lección
+        if accion == "evaluar":
+            # Si hay menos de 2 preguntas, no vale la pena evaluar
+            if total_preguntas < 2:
+                messages.warning(
+                    request,
+                    "Esta lección aún no tiene suficientes preguntas para ser evaluada. Inténtalo más tarde."
+                )
+                return redirect('rutas:listar_lecciones')
+
+            respuestas_correctas = 0
+            respondidas = 0
+
+            for pregunta in preguntas:
+                campo = f"opcion_{pregunta.id}"
+                opcion_id = request.POST.get(campo)
+                if not opcion_id:
+                    # No respondió esta pregunta → cuenta como incorrecta
+                    continue
+
+                respondidas += 1
+                try:
+                    opcion = pregunta.opciones.get(id=opcion_id)
+                except Opcion.DoesNotExist:
+                    continue
+
+                if (opcion.puntaje or 0) > 0:
+                    respuestas_correctas += 1
+
+            if respondidas == 0:
+                messages.warning(request, "No respondiste ninguna pregunta. Inténtalo nuevamente.")
+                return redirect('rutas:ver_leccion', leccion_id=leccion.id)
+
+            porcentaje = (respuestas_correctas / total_preguntas) * 100
+
+            if porcentaje >= 50:
+                leccion.estado = Leccion.ESTADO_APROBADA
+                leccion.puntaje = int(porcentaje)
+                leccion.save()
+                actualizar_estados_lecciones(leccion.ruta)
+                messages.success(
+                    request,
+                    f"¡Felicitaciones! Aprobaste la lección con {respuestas_correctas} "
+                    f"de {total_preguntas} preguntas correctas ({porcentaje:.0f}%)."
+                )
+            else:
+                # No cambia el estado; puede reintentar, pero bloqueamos el formulario
+                leccion.puntaje = int(porcentaje)
+                leccion.save()
+                messages.error(
+                    request,
+                    f"No alcanzaste el 50%. Obtuviste {respuestas_correctas} de "
+                    f"{total_preguntas} preguntas correctas ({porcentaje:.0f}%). "
+                    "Puedes volver a intentarlo cuando quieras."
+                )
+
+                # Redirigir con bandera de formulario bloqueado
+                url = reverse('rutas:ver_leccion', args=[leccion.id])
+                return redirect(f"{url}?bloqueado=1")
+
+            return redirect('rutas:ver_leccion', leccion_id=leccion.id)
+
+    context = {
+        'leccion': leccion,
+        'preguntas': preguntas,
+        'estado': leccion.estado,
+        'bloqueado': bloqueado,
+        'siguiente_leccion': siguiente_leccion,
+    }
+    return render(request, 'rutas/leccion_detalle.html', context)

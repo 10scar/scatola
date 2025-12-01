@@ -35,7 +35,7 @@ def sincronizar_lecciones(ruta_id):
 
     orden = 1
     for contenido in contenidos_validos:
-        preguntas = contenido.pregunta_set.all()  
+        preguntas = list(contenido.pregunta_set.all()[:12])
 
         if contenido.id in lecciones_actuales:
             # actualizar lección existente
@@ -57,10 +57,111 @@ def sincronizar_lecciones(ruta_id):
 
         orden += 1
 
-    # desactivar lecciones que ya no pertenecen a los contenidos válidos
+    # Eliminar lecciones que ya no pertenecen a los contenidos válidos
     for contenido_id, leccion in lecciones_actuales.items():
         if contenido_id not in contenidos_ids:
-            leccion.activa = False
-            leccion.save()
+            leccion.delete()
+
+    # NUEVO: asegurar una sola lección vigente y las demás bloqueadas
+    actualizar_estados_lecciones(ruta)
 
     return True
+
+@transaction.atomic
+def generar_ruta_sin_diagnostica(usuario, ruta):
+    """
+    Genera una ruta de aprendizaje con todos los temas de los componentes seleccionados,
+    sin necesidad de prueba diagnóstica. Cada lección tendrá máximo 12 preguntas.
+    
+    Args:
+        usuario: Usuario para quien generar las lecciones
+        ruta: Instancia de Ruta con los componentes ya seleccionados
+    
+    Returns:
+        Ruta: Ruta de aprendizaje generada
+    """
+    # La ruta ya tiene los componentes seleccionados
+    # Solo necesitamos sincronizar las lecciones (ya limitadas a 12 preguntas)
+    sincronizar_lecciones(ruta.id)
+    
+    return ruta
+
+@transaction.atomic
+def generar_lecciones_desde_diagnostica(usuario, prueba_diagnostica):
+    """
+    KAN-11/KAN-8: Genera lecciones de 12 preguntas basadas en los resultados 
+    de la prueba diagnóstica, seleccionando módulos según las áreas débiles.
+    
+    Args:
+        usuario: Usuario para quien generar las lecciones
+        prueba_diagnostica: Instancia de PruebaDiagnostica con los resultados
+    
+    Returns:
+        Ruta: Ruta de aprendizaje generada o actualizada
+    """
+    from preguntas.models import Componente, TipoExamen
+    from diagnosticos.models import RespuestaDiagnostica
+    
+    # Obtener o crear ruta del usuario
+    ruta, created = Ruta.objects.get_or_create(usuario=usuario)
+    
+    # Analizar resultados de la prueba diagnóstica
+    # Obtener componentes donde el estudiante tuvo bajo rendimiento
+    respuestas_incorrectas = RespuestaDiagnostica.objects.filter(
+        prueba=prueba_diagnostica,
+        puntaje_obtenido=0
+    )
+    
+    # Obtener componentes relacionados con las preguntas fallidas
+    componentes_necesarios = Componente.objects.filter(
+        temarios__tema__contenidos__pregunta__in=[
+            r.pregunta for r in respuestas_incorrectas
+        ]
+    ).distinct()
+    
+    # Si no hay suficientes componentes, usar todos los disponibles
+    if not componentes_necesarios.exists():
+        # Obtener todos los componentes de los tipos de examen seleccionados
+        tipos_examen = TipoExamen.objects.all()
+        componentes_necesarios = Componente.objects.filter(tipo_examen__in=tipos_examen)
+    
+    # Actualizar componentes de la ruta
+    ruta.componentes.set(componentes_necesarios)
+    
+    # Actualizar tipos de examen basados en los componentes
+    tipos_examen = componentes_necesarios.values_list('tipo_examen', flat=True).distinct()
+    ruta.examenes.set(tipos_examen)
+    
+    # Sincronizar lecciones (ya limitadas a 12 preguntas)
+    sincronizar_lecciones(ruta.id)
+    
+    return ruta
+
+def actualizar_estados_lecciones(ruta: Ruta):
+    """
+    Garantiza que para una ruta haya solo una lección vigente.
+    - Lecciones 'aprobada' o 'saltada' se mantienen así.
+    - Una sola lección queda 'vigente'.
+    - Las posteriores a la vigente quedan 'bloqueada'.
+    """
+    lecciones = list(
+        Leccion.objects.filter(ruta=ruta).order_by('numero')
+    )
+
+    if not lecciones:
+        return
+
+    # Buscar primera lección que no esté aprobada ni saltada
+    vigente_asignada = False
+    for leccion in lecciones:
+        if leccion.estado in [Leccion.ESTADO_APROBADA, Leccion.ESTADO_SALTADA]:
+            continue
+
+        if not vigente_asignada:
+            leccion.estado = Leccion.ESTADO_VIGENTE
+            vigente_asignada = True
+        else:
+            leccion.estado = Leccion.ESTADO_BLOQUEADA
+
+    # Si ninguna quedó vigente (todas aprobadas/saltadas), no forzamos nada más.
+    Leccion.objects.bulk_update(lecciones, ['estado'])

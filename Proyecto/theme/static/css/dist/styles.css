@@ -778,6 +778,50 @@
       }
     }
   }
+  @layer daisyui.modifier {
+    .btn-disabled {
+      pointer-events: none;
+      --btn-border: #0000;
+      --btn-noise: none;
+      --btn-fg: var(--color-base-content);
+    }
+    .btn-disabled:not(.btn-link, .btn-ghost) {
+      background-color: var(--color-base-content);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .btn-disabled:not(.btn-link, .btn-ghost) {
+        background-color: color-mix(in oklab, var(--color-base-content) 10%, transparent);
+      }
+    }
+    .btn-disabled:not(.btn-link, .btn-ghost) {
+      box-shadow: none;
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .btn-disabled {
+        --btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
+      }
+    }
+    @media (hover: hover) {
+      .btn-disabled:hover {
+        pointer-events: none;
+        background-color: var(--color-neutral);
+      }
+      @supports (color: color-mix(in lab, red, red)) {
+        .btn-disabled:hover {
+          background-color: color-mix(in oklab, var(--color-neutral) 20%, transparent);
+        }
+      }
+      .btn-disabled:hover {
+        --btn-border: #0000;
+        --btn-fg: var(--color-base-content);
+      }
+      @supports (color: color-mix(in lab, red, red)) {
+        .btn-disabled:hover {
+          --btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
+        }
+      }
+    }
+  }
   .collapse:not(td, tr, colgroup) {
     visibility: revert-layer;
   }
@@ -3121,6 +3165,9 @@
   .object-cover {
     object-fit: cover;
   }
+  .p-2 {
+    padding: calc(var(--spacing) * 2);
+  }
   .p-3 {
     padding: calc(var(--spacing) * 3);
   }
@@ -3326,6 +3373,13 @@
     }
   }
   @layer daisyui.modifier {
+    .alert-success {
+      color: var(--color-success-content);
+      --alert-border-color: var(--color-success);
+      --alert-color: var(--color-success);
+    }
+  }
+  @layer daisyui.modifier {
     .alert-warning {
       color: var(--color-warning-content);
       --alert-border-color: var(--color-warning);
@@ -3449,6 +3503,9 @@
   }
   .text-green-800 {
     color: var(--color-green-800);
+  }
+  .text-info {
+    color: var(--color-info);
   }
   .text-muted-foreground {
     color: var(--color-muted-foreground);
@@ -3692,6 +3749,12 @@
       --badge-fg: var(--color-success-content);
     }
   }
+  @layer daisyui.modifier {
+    .badge-warning {
+      --badge-color: var(--color-warning);
+      --badge-fg: var(--color-warning-content);
+    }
+  }
   @layer daisyui.modifier.color {
     .btn-accent {
       --btn-color: var(--color-accent);
@@ -3720,6 +3783,12 @@
     .btn-secondary {
       --btn-color: var(--color-secondary);
       --btn-fg: var(--color-secondary-content);
+    }
+  }
+  @layer daisyui.modifier.color {
+    .btn-success {
+      --btn-color: var(--color-success);
+      --btn-fg: var(--color-success-content);
     }
   }
   @layer daisyui.modifier {
@@ -4038,6 +4107,12 @@
   @media (width >= 64rem) {
     .lg\:px-8 {
       padding-inline: calc(var(--spacing) * 8);
+    }
+  }
+  @media (width >= 64rem) {
+    .lg\:text-2xl {
+      font-size: var(--text-2xl);
+      line-height: var(--tw-leading, var(--text-2xl--line-height));
     }
   }
   @media (width >= 64rem) {

@@ -1,0 +1,11 @@
+node_modules
+*/node_modules
+theme/static_src/node_modules
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+.env
+dist
+build

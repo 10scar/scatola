@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Prueba Diagnóstica - Pregunta {{ pregunta_num }}/{{ total_preguntas }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 flex items-center justify-center">
+    <div class="max-w-2xl w-full">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex justify-between mb-2">
+                <span class="text-sm font-semibold text-gray-700">Pregunta {{ pregunta_num }} de {{ total_preguntas }}</span>
+                <span class="text-sm font-semibold text-gray-500">{{ pregunta_num }}/{{ total_preguntas }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-300" 
+                     id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Card Pregunta -->
+        <div class="card bg-white shadow-2xl">
+            <div class="card-body p-8">
+                <h1 class="card-title text-3xl mb-6 text-gray-800">{{ pregunta.titulo }}</h1>
+
+                {% if pregunta.descripcion %}
+                    <p class="text-gray-600 mb-6 text-lg leading-relaxed">{{ pregunta.descripcion }}</p>
+                {% endif %}
+
+                {% if pregunta.imagen %}
+                    <div class="mb-8">
+                        <img src="{{ pregunta.imagen.url }}" 
+                             alt="{{ pregunta.titulo }}" 
+                             class="max-h-80 w-full rounded-lg object-cover shadow-md">
+                    </div>
+                {% endif %}
+
+                <!-- Opciones de Respuesta -->
+                <div class="space-y-3 my-8">
+                    <p class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Selecciona una opción:</p>
+                    
+                    {% for opcion in opciones %}
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg 
+                                   hover:border-primary hover:bg-blue-50 cursor-pointer transition-all 
+                                   opciones-radio" data-opcion-id="{{ opcion.id }}">
+                            <input 
+                                type="radio" 
+                                name="opcion_respuesta" 
+                                value="{{ opcion.id }}" 
+                                class="radio radio-primary mr-4"
+                                {% if respuesta_existente and respuesta_existente.opcion_elegida.id == opcion.id %}checked{% endif %}
+                                required
+                            >
+                            <span class="text-gray-800 font-medium flex-1">{{ opcion.contenido }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="card-actions justify-between mt-8 pt-6 border-t border-gray-200">
+                    <button onclick="cancelarPrueba()" class="btn btn-ghost">
+                        Cancelar
+                    </button>
+                    <button onclick="enviarRespuesta()" class="btn btn-primary gap-2">
+                        {% if pregunta_num == total_preguntas %}
+                            Finalizar Prueba
+                        {% else %}
+                            Siguiente
+                        {% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const preguntaNum = {{ pregunta_num }};
+    const totalPreguntas = {{ total_preguntas }};
+    const porcentaje = (preguntaNum / totalPreguntas) * 100;
+    document.getElementById('progress-bar').style.width = porcentaje + '%';
+});
+
+
+const pruebaId = {{ prueba.id|default:0 }};
+const preguntaId = {{ pregunta.id|default:0 }};
+const preguntaNum = {{ pregunta_num|default:1 }};
+
+async function enviarRespuesta() {
+    const opcionSeleccionada = document.querySelector('input[name="opcion_respuesta"]:checked');
+    
+    if (!opcionSeleccionada) {
+        alert('Por favor selecciona una opción');
+        return;
+    }
+    
+    const opcionId = opcionSeleccionada.value;
+    
+    try {
+        const response = await fetch(`/diagnosticos/${pruebaId}/responder/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                pregunta_id: preguntaId,
+                opcion_id: parseInt(opcionId),
+                pregunta_num: preguntaNum
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            alert('Error: ' + data.error);
+            return;
+        }
+        
+        if (data.success) {
+            if (data.completed) {
+                window.location.href = data.redirect_url;
+            } else {
+                window.location.href = data.redirect_url;
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al guardar la respuesta');
+    }
+}
+
+function cancelarPrueba() {
+    if (confirm('¿Cancelar la prueba diagnóstica? Tu progreso se perderá.')) {
+        window.location.href = '/dashboard/estudiante/';
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

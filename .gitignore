@@ -30,3 +30,4 @@ assets/
 .django_tailwind_cli/
 Proyecto/preguntas_img/
 Proyecto/theme/static/css/dist/styles.css
+Proyecto/theme/static_src

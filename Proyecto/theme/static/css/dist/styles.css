@@ -20,6 +20,7 @@
     --color-orange-50: oklch(98% 0.016 73.684);
     --color-orange-600: oklch(64.6% 0.222 41.116);
     --color-yellow-50: oklch(98.7% 0.026 102.212);
+    --color-yellow-100: oklch(97.3% 0.071 103.193);
     --color-yellow-500: oklch(79.5% 0.184 86.047);
     --color-yellow-800: oklch(47.6% 0.114 61.907);
     --color-green-50: oklch(98.2% 0.018 155.826);
@@ -3112,6 +3113,9 @@
   }
   .bg-yellow-50 {
     background-color: var(--color-yellow-50);
+  }
+  .bg-yellow-100 {
+    background-color: var(--color-yellow-100);
   }
   .bg-gradient-to-br {
     --tw-gradient-position: to bottom right in oklab;

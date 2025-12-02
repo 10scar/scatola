@@ -172,15 +172,40 @@ def guardar_respuesta_diagnostica(prueba, pregunta, opcion_elegida):
 
 @transaction.atomic
 def finalizar_prueba_diagnostica(prueba):
-    """Finaliza la prueba diagnóstica y calcula el puntaje total"""
+    """Finaliza la prueba diagnóstica, calcula el puntaje total y actualiza la ruta."""
     respuestas = RespuestaDiagnostica.objects.filter(prueba=prueba)
     puntaje_total = sum(r.puntaje_obtenido for r in respuestas)
-    
+
     prueba.puntaje_total = puntaje_total
     prueba.completada = True
     prueba.save()
-    
-    from rutas.services import generar_lecciones_desde_diagnostica
+
+    # Generar o actualizar la ruta a partir de la diagnóstica
+    from rutas.services import generar_lecciones_desde_diagnostica, actualizar_estados_lecciones
+    from rutas.models import Leccion
+
     ruta = generar_lecciones_desde_diagnostica(prueba.usuario, prueba)
-    
+
+    # --- NUEVO: marcar como aprobadas las lecciones cuyos contenidos
+    # hayan sido respondidos correctamente en la diagnóstica ---
+
+    # Respuestas correctas (puntaje_obtenido > 0) con su contenido asociado
+    respuestas_correctas = respuestas.select_related('pregunta__contenido').filter(
+        puntaje_obtenido__gt=0,
+        pregunta__contenido__isnull=False,
+    )
+
+    contenidos_aprobados_ids = {
+        r.pregunta.contenido_id
+        for r in respuestas_correctas
+        if r.pregunta.contenido_id is not None
+    }
+
+    if contenidos_aprobados_ids:
+        Leccion.objects.filter(
+            ruta=ruta,
+            contenido_id__in=contenidos_aprobados_ids,
+        ).update(estado=Leccion.ESTADO_APROBADA)
+        actualizar_estados_lecciones(ruta)
+
     return prueba, ruta

@@ -44,6 +44,18 @@
         </a>
       </li>
 
+      <!-- Continuar lección vigente -->
+      <li>
+        <a href="{% url 'rutas:continuar_leccion' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Continuar lección">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               stroke-linejoin="round" stroke-linecap="round" stroke-width="2"
+               fill="none" stroke="currentColor" class="inline-block size-4 my-1.5">
+            <path d="M5 3l14 9-14 9V3z" />
+          </svg>
+          <span class="is-drawer-close:hidden">Continuar lección</span>
+        </a>
+      </li>
+
       <!-- Perfil -->
       <li>
         <a href="{% url 'usuarios:profile_details' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Perfil">

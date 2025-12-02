@@ -215,6 +215,36 @@ def listar_lecciones(request):
     }
     return render(request, 'rutas/listar_lecciones.html', context)
 
+
+@login_required
+def continuar_leccion_vigente(request):
+    """
+    Redirige a la lección vigente de la ruta del usuario.
+    Si no hay ruta o no hay lecciones, envía a la lista de lecciones
+    o a la configuración de ruta con un mensaje.
+    """
+    ruta = Ruta.objects.filter(usuario=request.user).first()
+
+    if not ruta:
+        messages.warning(request, "Primero debes configurar tu ruta de aprendizaje.")
+        return redirect('usuarios:ver_rutas')
+
+    actualizar_estados_lecciones(ruta)
+
+    leccion_vigente = (
+        Leccion.objects
+        .filter(ruta=ruta, estado=Leccion.ESTADO_VIGENTE)
+        .order_by('numero')
+        .first()
+    )
+
+    if leccion_vigente:
+        return redirect('rutas:ver_leccion', leccion_id=leccion_vigente.id)
+
+    # Si no hay lección vigente (por ejemplo, todas aprobadas/saltadas)
+    messages.info(request, "Actualmente no tienes una lección vigente. Revisa tu ruta de aprendizaje.")
+    return redirect('rutas:listar_lecciones')
+
 @login_required
 def ver_leccion(request, leccion_id):
     """Muestra una lección específica y permite evaluarla o saltarla."""

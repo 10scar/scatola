@@ -16,6 +16,7 @@
 
       <!-- Preguntas diarias -->
       <li>
+        <a href="{% url 'preguntas_diarias' %}"
         <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Preguntas diarias">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="inline-block size-4 my-1.5">
             <circle cx="12" cy="12" r="10"></circle>
@@ -24,9 +25,9 @@
           </svg>
           <span class="is-drawer-close:hidden">Preguntas diarias</span>
         </button>
+        </a>
       </li>
 
-      <!-- Lecciones diarias -->
       <!-- Mis lecciones (ruta de aprendizaje) -->
       <li>
         <a href="{% url 'listar_lecciones' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Mi ruta de aprendizaje">

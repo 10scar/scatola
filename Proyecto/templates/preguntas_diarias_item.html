@@ -20,9 +20,15 @@
         <!-- Card Pregunta -->
         <div class="card bg-white shadow-2xl">
             <div class="card-body p-8">
+
                 <!-- Título Pregunta -->
                 <h1 class="card-title text-3xl mb-6 text-gray-800">{{ pregunta.titulo }}</h1>
 
+                <!-- Descripción de Grupo (si existe) -->
+                {% if grupo_descripcion %}
+                    <div class="mb-2 text-sm text-gray-500 italic">{{ grupo_descripcion }}</div>
+                {% endif %}
+                
                 <!-- Descripción -->
                 {% if pregunta.descripcion %}
                     <p class="text-gray-600 mb-6 text-lg leading-relaxed">{{ pregunta.descripcion }}</p>

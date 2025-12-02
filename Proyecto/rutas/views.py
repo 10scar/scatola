@@ -36,8 +36,22 @@ def preguntas_diarias_view(request):
             'total': conteo_respuestas_contestadas,
         })
 
-    # Preguntas disponibles sin ser contestadas hoy
-    preguntas_faltantes = Pregunta.objects.exclude(id__in=id_respuestas_contestadas)
+    # Preguntas disponibles sin ser contestadas hoy, limitadas a los componentes de la ruta del usuario
+    ruta = Ruta.objects.filter(usuario=request.user).first()
+    if not ruta or not ruta.componentes.exists():
+        # Si no hay ruta o componentes, pedir al usuario que configure la ruta
+        messages.warning(request, "Primero debes configurar tu ruta de aprendizaje con los componentes deseados.")
+        return redirect('usuarios:ver_rutas')
+
+    from preguntas.models import Temario
+    # Filtrar preguntas por temas que pertenezcan a los componentes seleccionados en la ruta
+    preguntas_faltantes = (
+        Pregunta.objects
+        .exclude(id__in=id_respuestas_contestadas)
+        .filter(contenido__tema__temarios__componente__in=ruta.componentes.all())
+        .select_related('grupo', 'contenido__tema')
+        .distinct()
+    )
     if not preguntas_faltantes.exists():
         # No hay preguntas disponibles
         return render(request, 'preguntas_diarias.html', {
@@ -50,6 +64,8 @@ def preguntas_diarias_view(request):
     context = {
         'pregunta': pregunta,
         'opciones': Opcion.objects.filter(pregunta=pregunta),
+        # Descripción del grupo al que pertenece la pregunta (si existe)
+        'grupo_descripcion': pregunta.grupo.descripcion if (pregunta.grupo and pregunta.grupo.descripcion) else '',
         'indice_actual': conteo_respuestas_contestadas + 1,
         'total_preguntas': 6,
     }

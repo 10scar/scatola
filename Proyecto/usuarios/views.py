@@ -174,6 +174,13 @@ class LoginView(FormView):
             return self.form_invalid(form)
         
         login(self.request, user)
+        # Reiniciar racha visual si la última respuesta fue hace >= 2 días
+        try:
+            perfil, _ = Perfil.objects.get_or_create(usuario=user)
+            perfil.reiniciar_racha_si_vieja(threshold_days=2)
+        except Exception:
+            # No bloquear el login ante errores
+            pass
         messages.success(self.request, f'¡Bienvenido de nuevo, {user.first_name}!')
             
         redirect_url = get_redirect_url_by_role(user)

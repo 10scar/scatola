@@ -78,3 +78,39 @@ class Perfil(models.Model):
         # por quien crea la RespuestaDiaria (por ejemplo la vista que procesa la respuesta).
         self.save()
     # La lógica de recordatorio se gestiona en la vista `recuerdo_racha`.
+
+    def reiniciar_racha_si_vieja(self, threshold_days=2):
+        """Reinicia la racha a 0 si la última respuesta fue hace >= threshold_days.
+
+        Este método solo cambia el campo `racha`; no modifica `ultima_respuesta_diaria`.
+        """
+        if not self.ultima_respuesta_diaria:
+            return
+        RespuestaDiaria = apps.get_model('rutas', 'RespuestaDiaria')
+        fecha_dt = (
+            RespuestaDiaria.objects
+            .filter(pk=self.ultima_respuesta_diaria)
+            .values_list('fecha', flat=True)
+            .first()
+        )
+        if not fecha_dt:
+            return
+        try:
+            if timezone.is_aware(fecha_dt):
+                fecha_local = timezone.localtime(fecha_dt)
+            else:
+                fecha_local = fecha_dt
+            ultima_fecha = fecha_local.date()
+        except Exception:
+            ultima_fecha = fecha_dt
+
+        if not ultima_fecha:
+            return
+        hoy = timezone.localdate()
+        try:
+            dias = (hoy - ultima_fecha).days
+        except Exception:
+            return
+        if dias >= threshold_days:
+            self.racha = 0
+            self.save()

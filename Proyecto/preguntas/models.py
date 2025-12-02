@@ -9,6 +9,7 @@ class Componente(models.Model):
     prioridad = models.IntegerField(null=True, blank=True)
     nombre = models.CharField(max_length=45)
     tipo_examen = models.ForeignKey(TipoExamen,on_delete=models.CASCADE,null=True, blank=True)
+    imagen = models.ImageField(upload_to='componentes_img/', null=True, blank=True, help_text="Imagen representativa del componente")
     def __str__(self):
         return self.nombre
 

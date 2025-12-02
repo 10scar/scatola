@@ -1,73 +1,327 @@
 {% extends "dashboard/dashboard_estudiante.html" %}
 
-{% block title %}Mis lecciones{% endblock %}
+{% block title %}Mi ruta de aprendizaje{% endblock %}
 
 {% block page_content %}
+<style>
+    /* Snake Layout Logic */
+    .lesson-node {
+        position: relative;
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 1; /* Default z-index */
+    }
+    
+    /* Center (Odd items: 1, 3, 5...) */
+    .lesson-node:nth-child(odd) {
+        transform: translateX(0);
+    }
+    
+    /* Left (Items 2, 6, 10...) -> 4n+2 */
+    .lesson-node:nth-child(4n+2) {
+        transform: translateX(-80px);
+    }
+    
+    /* Right (Items 4, 8, 12...) -> 4n */
+    .lesson-node:nth-child(4n) {
+        transform: translateX(80px);
+    }
+
+    /* Mobile adjustment: less offset */
+    @media (max-width: 640px) {
+        .lesson-node:nth-child(4n+2) {
+            transform: translateX(-40px);
+        }
+        .lesson-node:nth-child(4n) {
+            transform: translateX(40px);
+        }
+    }
+
+    /* Bounce animation for active lesson */
+    @keyframes bounce-soft {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-8px) scale(1.05); }
+    }
+    
+    .lesson-active {
+        z-index: 10; /* Bring active lesson to front */
+    }
+
+    .lesson-active .lesson-btn {
+        animation: bounce-soft 2s infinite;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    }
+    
+    /* Connector line */
+    .path-connector {
+        position: absolute;
+        top: 45px; /* Start from center of button */
+        width: 80px;
+        height: 180px; /* Reach the next node */
+        z-index: -1; /* Behind buttons */
+        pointer-events: none;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+    }
+    
+    /* 1. Center to Left (1->2) & 4. Right to Center (4->5) */
+    /* Curve: Starts Top-Right, Ends Bottom-Left */
+    .lesson-node:nth-child(4n+1) .path-connector,
+    .lesson-node:nth-child(4n) .path-connector {
+        left: 50%;
+        transform: translateX(-100%);
+        background-image: url("data:image/svg+xml,%3Csvg width='80' height='180' viewBox='0 0 80 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 78 0 Q 78 90 2 180' fill='none' stroke='%23cbd5e1' stroke-width='6' stroke-dasharray='0 12' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+
+    /* 2. Left to Center (2->3) & 3. Center to Right (3->4) */
+    /* Curve: Starts Top-Left, Ends Bottom-Right */
+    .lesson-node:nth-child(4n+2) .path-connector,
+    .lesson-node:nth-child(4n+3) .path-connector {
+        left: 50%;
+        transform: translateX(0);
+        background-image: url("data:image/svg+xml,%3Csvg width='80' height='180' viewBox='0 0 80 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 2 0 Q 2 90 78 180' fill='none' stroke='%23cbd5e1' stroke-width='6' stroke-dasharray='0 12' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+
+    /* Mobile adjustment: narrower curves */
+    @media (max-width: 640px) {
+        .path-connector {
+            width: 40px;
+        }
+
+        .lesson-node:nth-child(4n+1) .path-connector,
+        .lesson-node:nth-child(4n) .path-connector {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='180' viewBox='0 0 40 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 38 0 Q 38 90 2 180' fill='none' stroke='%23cbd5e1' stroke-width='6' stroke-dasharray='0 12' stroke-linecap='round'/%3E%3C/svg%3E");
+        }
+
+        .lesson-node:nth-child(4n+2) .path-connector,
+        .lesson-node:nth-child(4n+3) .path-connector {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='180' viewBox='0 0 40 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 2 0 Q 2 90 38 180' fill='none' stroke='%23cbd5e1' stroke-width='6' stroke-dasharray='0 12' stroke-linecap='round'/%3E%3C/svg%3E");
+        }
+    }
+
+    /* Hide connector for last item */
+    .lesson-node:last-child .path-connector {
+        display: none;
+    }
+
+    /* Button Styles */
+    .lesson-btn {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 10;
+        border-width: 5px;
+        transition: all 0.2s;
+        background-color: white; /* Ensure background is opaque */
+    }
+    
+    .lesson-btn:active {
+        transform: translateY(4px);
+        box-shadow: none !important;
+        border-bottom-width: 0px;
+        margin-top: 5px;
+    }
+
+    /* Status Colors */
+    .status-bloqueada {
+        background-color: #1e293b;
+        border-color: #0f172a;
+        color: #94a3b8;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+    
+    .status-vigente {
+        background-color: #3b82f6;
+        border-color: #1d4ed8;
+        color: white;
+        border-bottom-width: 8px;
+    }
+    
+    .status-aprobada {
+        background-color: #10B981;
+        border-color: #059669;
+        color: white;
+        border-bottom-width: 8px;
+    }
+    
+    .status-saltada {
+        background-color: #10B981;
+        border-color: #059669;
+        color: white;
+        border-bottom-width: 8px;
+    }
+
+    /* Tooltip/Bubble for active lesson */
+    .start-bubble {
+        position: absolute;
+        top: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        color: #3b82f6;
+        padding: 6px 16px;
+        border-radius: 16px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        white-space: nowrap;
+        animation: bounce-soft 2s infinite;
+        border: 2px solid #eff6ff;
+        z-index: 20;
+    }
+    .start-bubble::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 8px 8px 0;
+        border-style: solid;
+        border-color: white transparent transparent transparent;
+    }
+
+</style>
+
 <div class="min-h-screen bg-gray-50 py-8">
-  <div class="max-w-4xl mx-auto">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-3xl font-bold">Mi ruta de aprendizaje</h1>
-      <div class="flex gap-3 w-full max-w-md justify-end">
-        <!-- Atrás (azul, estilo Guardar) -->
-        <a href="{% url 'usuarios:dashboard_estudiante' %}"
-           class="flex-1 text-center py-2 rounded-lg bg-blue-600 text-white">
-          Atrás
+  <div class="max-w-2xl mx-auto px-4">
+    
+    <!-- Header Actions -->
+    <div class="flex justify-between items-center mb-8">
+        <a href="{% url 'usuarios:dashboard_estudiante' %}" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-chevron-left mr-1"></i> Volver
         </a>
-        <!-- Modificar ruta (blanco, estilo Atrás en modificar_rutas) -->
-        <a href="{% url 'usuarios:ver_rutas' %}"
-           class="flex-1 text-center py-2 rounded-lg border text-gray-700 bg-white">
-          Modificar ruta
+        <a href="{% url 'usuarios:ver_rutas' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+            <i class="fas fa-cog mr-1"></i> Configurar Ruta
         </a>
-      </div>
     </div>
 
-    {% if lecciones %}
-      <div class="space-y-4">
-        {% for leccion in lecciones %}
-          <div class="card bg-white shadow">
-            <div class="card-body">
-                <div class="flex justify-between items-center">
-                    <div>
-                      <h2 class="font-semibold text-xl lg:text-2xl">
-                        Lección {{ leccion.numero }}
-                      </h2>
-                      <p class="text-base text-gray-700">
-                        Contenido: {{ leccion.contenido.titulo }}
-                      </p>
-                      <p class="text-sm text-gray-500">
-                        Preguntas: {{ leccion.preguntas.count }}
-                      </p>
+    {% if temas_list %}
+        <div class="space-y-12">
+            {% for grupo in temas_list %}
+                <div class="tema-section relative">
+                    <!-- Tema Header (sin imagen) -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm mb-8 border-l-4 
+                        {% if grupo.estado_tema == 'completado' %}border-green-500{% elif grupo.estado_tema == 'activo' %}border-blue-500{% else %}border-gray-300{% endif %}">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-800">{{ grupo.tema.nombre }}</h2>
+                                {% if grupo.tema.descripcion %}
+                                    <p class="text-sm text-gray-500 mt-1">{{ grupo.tema.descripcion }}</p>
+                                {% endif %}
+                                {% if grupo.componente %}
+                                    <p class="text-xs text-blue-600 mt-1">
+                                        <i class="fas fa-tag mr-1"></i>{{ grupo.componente.nombre }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                            {% if grupo.estado_tema == 'completado' %}
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold">
+                                    <i class="fas fa-check mr-1"></i> COMPLETADO
+                                </span>
+                            {% endif %}
+                        </div>
                     </div>
-                  
-                    <div class="text-right">
-                      {% if leccion.estado == leccion.ESTADO_VIGENTE %}
-                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-primary">
-                          Continuar
-                        </a>
-                      {% elif leccion.estado == leccion.ESTADO_APROBADA %}
-                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-success">
-                          Revisar
-                        </a>
-                      {% elif leccion.estado == leccion.ESTADO_SALTADA %}
-                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" class="btn btn-error">
-                          Revisar
-                        </a>
-                      {% else %}
-                        <button class="btn btn-disabled" disabled>
-                          Bloqueada
-                        </button>
-                      {% endif %}
+
+                    <!-- Container para imagen y lecciones -->
+                    <div class="relative">
+                        <!-- Imagen del Componente - Flotante al lado izquierdo -->
+                        {% if grupo.componente and grupo.componente.imagen %}
+                            <div class="absolute top-4 left-4 z-10 md:block md:left-50 md:top-20 md:-translate-x-32">
+                                <div class="sticky md:top-24">
+                                    <img src="{{ grupo.componente.imagen.url }}"
+                                         alt="{{ grupo.componente.nombre }}"
+                                         class="w-16 h-16 object-cover transform hover:scale-110 transition-transform duration-300 md:w-24 md:h-24">
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Lessons Path -->
+                        <div class="flex flex-col items-center space-y-32 relative pb-12">
+                            {% for leccion in grupo.lecciones %}
+                                <div class="lesson-node {% if leccion.estado == 'vigente' %}lesson-active{% endif %}">
+                                    
+                                    <!-- Connector Line -->
+                                    {% if not forloop.last %}
+                                        <div class="path-connector"></div>
+                                    {% endif %}
+
+                                    <!-- Start Bubble -->
+                                    {% if leccion.estado == 'vigente' %}
+                                        <div class="start-bubble">EMPEZAR</div>
+                                    {% endif %}
+
+                                    <!-- Button -->
+                                    {% if leccion.estado == 'bloqueada' %}
+                                        <div class="lesson-btn status-bloqueada" title="Lección bloqueada">
+                                            {% if leccion.contenido.icono %}
+                                                {% if '/' in leccion.contenido.icono or 'http' in leccion.contenido.icono %}
+                                                    <img src="{{ leccion.contenido.icono }}" class="w-10 h-10 opacity-50 grayscale" alt="Icono">
+                                                {% else %}
+                                                    <i class="{{ leccion.contenido.icono }} text-3xl"></i>
+                                                {% endif %}
+                                            {% else %}
+                                                <i class="fas fa-book text-2xl"></i>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <a href="{% url 'rutas:ver_leccion' leccion.id %}" 
+                                           class="lesson-btn status-{{ leccion.estado }}"
+                                           title="{{ leccion.contenido.titulo }}">
+                                            
+                                            <!-- Unified Icon Logic for ALL states (including approved/skipped) -->
+                                            {% if leccion.contenido.icono %}
+                                                {% if '/' in leccion.contenido.icono or 'http' in leccion.contenido.icono %}
+                                                    <img src="{{ leccion.contenido.icono }}" class="w-10 h-10 object-contain" alt="Icono">
+                                                {% else %}
+                                                    <i class="{{ leccion.contenido.icono }} text-3xl"></i>
+                                                {% endif %}
+                                            {% else %}
+                                                <i class="fas fa-book text-3xl"></i>
+                                            {% endif %}
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <!-- Label below button -->
+                                    <div class="absolute top-full mt-2 w-48 left-1/2 transform -translate-x-1/2 text-center">
+                                        <span class="text-sm font-medium text-gray-600 leading-tight block">
+                                            {{ leccion.contenido.titulo }}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                  </div>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Final Message -->
+        <div class="text-center mt-12 mb-8">
+            <img src="https://cdn-icons-png.flaticon.com/512/2910/2910791.png" class="w-24 h-24 mx-auto opacity-50 mb-4" alt="Fin">
+            <p class="text-gray-500">¡Has llegado al final de tu ruta actual!</p>
+        </div>
+
     {% else %}
-      <p class="text-gray-600">
-        Aún no tienes lecciones generadas. Completa la prueba diagnóstica o configura tu ruta.
-      </p>
+        <div class="text-center py-12">
+            <div class="bg-white p-8 rounded-xl shadow-sm inline-block">
+                <i class="fas fa-route text-6xl text-blue-200 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Tu ruta está vacía</h3>
+                <p class="text-gray-600 mb-6">Aún no tienes lecciones generadas.</p>
+                <a href="{% url 'usuarios:ver_rutas' %}" class="btn btn-primary">
+                    Configurar Ruta
+                </a>
+            </div>
+        </div>
     {% endif %}
+
   </div>
 </div>
 {% endblock %}

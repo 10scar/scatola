@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from usuarios import views
 from rutas import views as rutas_views
 
@@ -45,3 +47,8 @@ urlpatterns = [
     path('rutas/lecciones/', rutas_views.listar_lecciones, name='listar_lecciones'),
     path('rutas/', include(('rutas.urls', 'rutas'), namespace='rutas')),
 ]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
